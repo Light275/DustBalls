@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OPMODEZ;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -20,7 +21,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 
 import java.util.List;
-
+@Disabled
 @TeleOp(name = "Tag Pose Processor", group = "Competitions")
 public class TagPoseProcessor extends LinearOpMode {
 
