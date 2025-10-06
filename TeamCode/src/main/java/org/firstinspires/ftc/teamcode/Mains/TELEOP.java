@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.OPMODEZ;
+package org.firstinspires.ftc.teamcode.Mains;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -8,6 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.Localizer;
+import org.firstinspires.ftc.teamcode.TwoDeadWheelLocalizer;
 
 @TeleOp(name = "TELEOP", group = "Competitions")
 public class TELEOP extends OpMode {
@@ -82,6 +86,7 @@ public class TELEOP extends OpMode {
         arm1.setPosition(ARM_1_DOWN);
         arm2.setPosition(ARM_2_DOWN);
         arm3.setPosition(ARM_3_DOWN);
+
     }
 
     public void intake(boolean gamepadInputIn, boolean gamepadInputOut, double intakeSpeed, double idxSpeed, double idxIdle) {
@@ -130,6 +135,12 @@ public class TELEOP extends OpMode {
         diffyR.setPower(rPower);
     }
 
+    public void flywheel (double distance, double distanceVelocity) {
+
+    }
+
+
+
     @Override
     public void loop() {
 
@@ -140,6 +151,7 @@ public class TELEOP extends OpMode {
         telemetry.addData("FLYWHEEL TICKS L:", shooterL.getCurrentPosition());
         telemetry.addData("FLYWHEEL TICKS R", shooterR.getCurrentPosition());
         telemetry.update();
+
 
 
     }
