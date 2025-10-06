@@ -10,10 +10,8 @@ public class TELEOP extends OpMode {
 
     Robot robot;
 
-    // Arm3 shoot button and cooldown
+    // Arm3 shoot button state
     private boolean shootPressedLast = false;
-    private double flywheelCooldownTime = 0;
-    private final double FLYWHEEL_COOLDOWN = 1.0; // seconds
 
     @Override
     public void init() {
@@ -38,28 +36,23 @@ public class TELEOP extends OpMode {
         robot.intake.update(gamepad1.left_bumper, gamepad1.dpad_down);
 
         // --- FLYWHEEL ---
-        boolean hasBalls = robot.colorSensors.numBalls() > 0;
-        boolean cooldownActive = currentTime - flywheelCooldownTime < FLYWHEEL_COOLDOWN;
-
-        // Keep flywheel spinning if balls or cooldown active
-        if (hasBalls || cooldownActive) {
-            robot.flywheel.update(robot.colorSensors.numBalls());
-        } else {
-            robot.flywheel.update(0); // idle speed
-        }
+        robot.flywheel.update(robot.colorSensors.numBalls());
 
         // --- TURRET TARGET CHECK ---
-        boolean turretAtTarget = true; // replace with Diffy turret check if integrated
+        boolean turretAtTarget = true; // Replace with Diffy turret check if integrated
         boolean flywheelReady = robot.flywheel.isAtTargetVelocity();
-
 
         // --- ARM3 SHOOT ---
         boolean shootButton = gamepad1.a; // press A to shoot
         if (shootButton && !shootPressedLast && turretAtTarget && flywheelReady) {
+            // Flick arm3 up
             robot.arms.flickArm3(true);
-            // Run indexer while shooting using public method
+
+            // Run indexer while shooting
             robot.intake.runIndexer(robot.intake.getIndexerSpeed());
-            flywheelCooldownTime = currentTime; // start flywheel cooldown
+
+            // Start flywheel cooldown (Flywheel class handles timing internally)
+            robot.flywheel.update(1); // maintain flywheel for cooldown [MAKE IT THINK THERE'S STILL A BALL IN IT]
         } else {
             robot.arms.flickArm3(false);
         }
@@ -73,6 +66,7 @@ public class TELEOP extends OpMode {
         telemetry.addData("Arm2 Pos", robot.arms.getArm2Position());
         telemetry.addData("Arm3 Pos", robot.arms.getArm3Position());
         telemetry.addData("Flywheel Vel", robot.flywheel.getShooterVelocity());
+        telemetry.addData("Target Vel", robot.flywheel.getTargetVelocity());
         telemetry.addData("Num Balls", robot.colorSensors.numBalls());
         telemetry.update();
     }

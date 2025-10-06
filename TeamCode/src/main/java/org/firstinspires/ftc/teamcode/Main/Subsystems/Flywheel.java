@@ -33,8 +33,12 @@ public class Flywheel {
     private Robot robot;
     private PID pid;
 
-    // Tolerance for checking if flywheel is ready
-    private double velocityTolerance = 50; // default, can be changed
+    // Flywheel ready tolerance
+    private double velocityTolerance = 50;
+
+    // Cooldown timer
+    private double lastBallTime = 0;
+    private final double COOLDOWN = 1.0; // seconds
 
     public Flywheel(HardwareMap hardwareMap, Robot robot) {
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
@@ -108,9 +112,17 @@ public class Flywheel {
         lastTime = currentTime;
     }
 
-    /** Main update loop: call each cycle */
+    /** Main update loop: call each cycle, numBalls from ColorSensors */
     public void update(double numBalls) {
-        if (numBalls != 0) {
+        double currentTime = System.nanoTime() / 1e9;
+
+        if (numBalls > 0) {
+            lastBallTime = currentTime; // reset cooldown
+        }
+
+        boolean cooldownActive = (currentTime - lastBallTime) < COOLDOWN;
+
+        if (numBalls > 0 || cooldownActive) {
             updateVelocity();
             spin(PIDPower());
             pid.setEnabled(true);
