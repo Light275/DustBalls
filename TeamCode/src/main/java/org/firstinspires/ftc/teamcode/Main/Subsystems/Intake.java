@@ -1,0 +1,83 @@
+package org.firstinspires.ftc.teamcode.Main.Subsystems;
+
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+public class Intake {
+
+    private DcMotorEx intake;
+    private DcMotorEx indexer;
+
+    private double intakeSpeed = 1.0;
+    private double indexerSpeed = 1.0;
+    private double indexerIdle = 0.0; // stopped when idle
+
+    private ColorSensors colorSensors;
+
+    private double lastBallTime = 0;       // timestamp of last ball detection
+    private final double INDEXER_DELAY = 0.75; // seconds to keep running after last ball
+
+    public Intake(HardwareMap hardwareMap, ColorSensors colorSensors) {
+        this.intake = hardwareMap.get(DcMotorEx.class, "intake");
+        this.indexer = hardwareMap.get(DcMotorEx.class, "indexer");
+
+        this.colorSensors = colorSensors;
+
+        intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        indexer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+
+        intake.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        indexer.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    /** Set speeds (optional) */
+    public void setSpeeds(double intakeSpeed, double indexerSpeed) {
+        this.intakeSpeed = intakeSpeed;
+        this.indexerSpeed = indexerSpeed;
+    }
+
+    /** Call this each loop to control intake/indexer */
+    public void update(boolean intakeIn, boolean intakeOut) {
+        double numBalls = colorSensors.numBalls(); // current ball count
+        double currentTime = System.nanoTime() / 1e9; // seconds
+
+        if (intakeIn) {
+            intake.setPower(intakeSpeed);
+            indexer.setPower(indexerSpeed);
+            lastBallTime = currentTime; // reset timer while intake is running
+        } else if (intakeOut) {
+            intake.setPower(-intakeSpeed);
+            indexer.setPower(-indexerSpeed);
+            lastBallTime = currentTime; // reset timer for outtake too
+        } else if (numBalls > 0) {
+            // Auto-run indexer if balls are detected
+            intake.setPower(0);
+            indexer.setPower(indexerSpeed);
+            lastBallTime = currentTime;
+        } else {
+            // Check delay: keep indexer running for INDEXER_DELAY seconds after last ball
+            intake.setPower(0);
+            if (currentTime - lastBallTime < INDEXER_DELAY) {
+                indexer.setPower(indexerSpeed);
+            } else {
+                indexer.setPower(indexerIdle); // stop
+            }
+        }
+    }
+
+    /** Stop all motors immediately */
+    public void stop() {
+        intake.setPower(0);
+        indexer.setPower(0);
+    }
+
+    /** Run indexer manually at a given power (for shooting) */
+    public void runIndexer(double power) {
+        indexer.setPower(power);
+    }
+
+    /** Getter for indexer speed */
+    public double getIndexerSpeed() {
+        return indexerSpeed;
+    }
+}
