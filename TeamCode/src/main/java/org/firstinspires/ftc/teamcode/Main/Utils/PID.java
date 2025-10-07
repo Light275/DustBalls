@@ -9,8 +9,8 @@ public class PID {
     private boolean enabled = false;
     private ElapsedTime timer = new ElapsedTime();
 
-    // Optional output limits (can be changed if needed)
-    private double minOutput = 0;
+    // Output limits, can be positive/negative for motors
+    private double minOutput = -1;
     private double maxOutput = 1;
 
     public PID(double kP, double kI, double kD) {
@@ -30,7 +30,7 @@ public class PID {
         double deltaTime = timer.seconds();
         timer.reset();
 
-        if (deltaTime <= 0) return 0; // Prevent division by zero
+        if (deltaTime <= 0) return 0;
 
         integral += error * deltaTime;
         double derivative = (error - lastError) / deltaTime;
@@ -38,15 +38,13 @@ public class PID {
 
         double output = (kP * error) + (kI * integral) + (kD * derivative);
 
-        // Clamp output between minOutput and maxOutput
+        // Clamp to output limits (allows negative values)
         output = Math.max(minOutput, Math.min(maxOutput, output));
-
         return output;
     }
 
     public void setEnabled(boolean enable) {
         if (enable && !this.enabled) {
-            // PID just turned on — reset internal state
             timer.reset();
             lastError = 0;
             integral = 0;
@@ -54,9 +52,7 @@ public class PID {
         this.enabled = enable;
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public boolean isEnabled() { return enabled; }
 
     public void reset() {
         lastError = 0;

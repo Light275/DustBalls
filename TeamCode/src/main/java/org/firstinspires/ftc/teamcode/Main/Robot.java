@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Main.Subsystems.Arms;
 import org.firstinspires.ftc.teamcode.Main.Subsystems.ColorSensors;
+import org.firstinspires.ftc.teamcode.Main.Subsystems.Diffy;
 import org.firstinspires.ftc.teamcode.Main.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Main.Subsystems.Flywheel;
 import org.firstinspires.ftc.teamcode.Main.Subsystems.Intake;
@@ -18,6 +19,7 @@ public class Robot {
     public Drivetrain drivetrain;
     public Intake intake;
     public Arms arms;
+    public Diffy diffy;
 
     public Robot(HardwareMap hardwareMap) {
         // Initialize subsystems
@@ -25,14 +27,27 @@ public class Robot {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         drivetrain = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap, colorSensors);
-        flywheel = new Flywheel(hardwareMap, this);
-        arms = new Arms(hardwareMap); // Arm1/2/3 initialized to DOWN
+        flywheel = new Flywheel(hardwareMap); // can leave PID off for testing
+        arms = new Arms(hardwareMap);
+        diffy = new Diffy(hardwareMap);       // Diffy turret subsystem
     }
 
+    /**
+     * Call every loop to update subsystems.
+     * Important: Diffy update should only be called from OpMode to prevent conflicts.
+     */
     public void update() {
+        // Update drivetrain & pose
         drive.updatePoseEstimate();
-        colorSensors.update();
-        flywheel.update(colorSensors.numBalls());
-        arms.update(); // apply flick flags
+
+        // Update arms
+        arms.update();
+
+        // Update intake with default inputs (can be overridden by OpMode)
+        intake.update(false, false);
+
+        // Diffy NOT automatically updated here — leave it to TeleOp for precise control
+        // flywheel.updateVelocity(); // optionally update flywheel if needed
+        // colorSensors.update();     // optionally update color sensors if needed
     }
 }

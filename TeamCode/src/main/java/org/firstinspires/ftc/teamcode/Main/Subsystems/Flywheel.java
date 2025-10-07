@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.CONFIG.RobotConfig;
-import org.firstinspires.ftc.teamcode.Main.Robot;
 import org.firstinspires.ftc.teamcode.Main.Utils.PID;
 
 public class Flywheel {
@@ -13,34 +11,14 @@ public class Flywheel {
     private DcMotorEx shooterL, shooterR;
     private double lastTicks = 0;
     private double lastTime = 0;
-    private double shooterRVelocity = 0;
+    private double velocity = 0; // measured velocity
 
-    // constants for interpolation
-    private static final double MIN_DIST = 48;
-    private static final double MIN_VEL = 2400;
-    private static final double MAX_DIST = 173;
-    private static final double MAX_VEL = 5800;
+    private PID pid;
+    private double velocityTolerance = 50; // "ready" tolerance
+
     private static final double IDLE_POWER = 0.2;
 
-    // GOAL POSITIONS
-    private static final double BLUE_X = -72;
-    private static final double BLUE_Y = 72;
-    private static final double RED_X = 72;
-    private static final double RED_Y = 72;
-
-    private static final double SLOPE = (MAX_VEL - MIN_VEL) / (MAX_DIST - MIN_DIST);
-
-    private Robot robot;
-    private PID pid;
-
-    // Flywheel ready tolerance
-    private double velocityTolerance = 50;
-
-    // Cooldown timer
-    private double lastBallTime = 0;
-    private final double COOLDOWN = 1.0; // seconds
-
-    public Flywheel(HardwareMap hardwareMap, Robot robot) {
+    public Flywheel(HardwareMap hardwareMap) {
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
         shooterR = hardwareMap.get(DcMotorEx.class, "shooterR");
 
@@ -53,96 +31,67 @@ public class Flywheel {
         shooterL.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         shooterR.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-        lastTicks = shooterR.getCurrentPosition();
-        lastTime = System.nanoTime() / 1e9; // seconds
+        lastTicks = shooterL.getCurrentPosition();
+        lastTime = System.nanoTime() / 1e9;
 
-        this.robot = robot;
-        pid = new PID(0.001, 0.001, 0.0001);
+        pid = new PID(0.0008, 0.00001, 0.00005); // tuned for smooth output
+        pid.setOutputLimits(0.05, 1); // small minimum so motors spin
+        pid.setEnabled(true);
     }
 
-    /** Returns the goal coordinates based on current alliance */
-    private double[] getGoalPosition() {
-        if (RobotConfig.alliance == RobotConfig.Alliance.BLUE) {
-            return new double[]{BLUE_X, BLUE_Y};
-        } else {
-            return new double[]{RED_X, RED_Y};
-        }
-    }
-
-    /** Returns distance to the goal in inches */
-    public double getDistToGoal() {
-        double[] goal = getGoalPosition();
-        double gx = goal[0];
-        double gy = goal[1];
-
-        double px = robot.drive.localizer.getPose().position.x;
-        double py = robot.drive.localizer.getPose().position.y;
-
-        return Math.hypot(px - gx, py - gy);
-    }
-
-    /** Linear interpolation: convert distance to target flywheel velocity */
-    public double getTargetVelocity() {
-        double dist = getDistToGoal();
-        return SLOPE * (dist - MIN_DIST) + MIN_VEL;
-    }
-
-    /** Spins flywheel at given power */
-    public void spin(double power) {
-        shooterL.setPower(power);
-        shooterR.setPower(power);
-    }
-
-    /** Returns PID-corrected power */
-    public double PIDPower() {
-        return pid.update(getShooterVelocity(), getTargetVelocity());
-    }
-
-    /** Update shooter velocity using encoder ticks */
+    /** Update encoder velocity */
     public void updateVelocity() {
-        double currentTicks = shooterR.getCurrentPosition();
+        double currentTicks = shooterL.getCurrentPosition();
         double currentTime = System.nanoTime() / 1e9;
 
         double deltaTicks = currentTicks - lastTicks;
         double deltaTime = currentTime - lastTime;
 
-        if (deltaTime != 0) shooterRVelocity = deltaTicks / deltaTime;
+        if (deltaTime > 0) velocity = deltaTicks / deltaTime;
 
         lastTicks = currentTicks;
         lastTime = currentTime;
     }
 
-    /** Main update loop: call each cycle, numBalls from ColorSensors */
-    public void update(double numBalls) {
-        double currentTime = System.nanoTime() / 1e9;
-
-        if (numBalls > 0) {
-            lastBallTime = currentTime; // reset cooldown
-        }
-
-        boolean cooldownActive = (currentTime - lastBallTime) < COOLDOWN;
-
-        if (numBalls > 0 || cooldownActive) {
-            updateVelocity();
-            spin(PIDPower());
-            pid.setEnabled(true);
-        } else {
-            pid.setEnabled(false);
-            spin(IDLE_POWER);
-        }
-    }
-
-    /** Current shooter velocity */
+    /** Get current shooter velocity */
     public double getShooterVelocity() {
-        return shooterRVelocity;
+        return velocity;
     }
 
-    /** Check if flywheel is within target velocity range */
-    public boolean isAtTargetVelocity() {
-        return Math.abs(shooterRVelocity - getTargetVelocity()) <= velocityTolerance;
+    /** Return PID-corrected power for a target velocity */
+    public double getPIDPower(double targetVelocity) {
+        // smooth PID output
+        return pid.update(velocity, targetVelocity);
     }
 
-    /** Optional: set custom tolerance */
+    /** Spin motors */
+    public void spin(double power) {
+        shooterL.setPower(power);
+        shooterR.setPower(power);
+    }
+
+    /** Enable PID */
+    public void enablePID() {
+        pid.setEnabled(true);
+    }
+
+    /** Disable PID */
+    public void disablePID() {
+        pid.setEnabled(false);
+        spin(IDLE_POWER);
+    }
+
+    /** Update PID coefficients live */
+    public void setPIDCoefficients(double kP, double kI, double kD) {
+        pid.setPID(kP, kI, kD);
+    }
+
+    /** Flywheel "ready" check */
+    public boolean isAtTargetVelocity(double targetVelocity) {
+        return Math.abs(velocity - targetVelocity) <= velocityTolerance;
+    }
+
+    /** Optional: set tolerance */
     public void setVelocityTolerance(double tolerance) {
         velocityTolerance = tolerance;
     }
