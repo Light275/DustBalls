@@ -17,7 +17,7 @@ public class Drivetrain {
 
         // Directions — KEEP SAME
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -60,7 +60,7 @@ public class Drivetrain {
         rb /= max;
 
         leftFront.setPower(lf * speedMultiplier);
-        leftBack.setPower(lb * speedMultiplier);
+        leftBack.setPower(lb * -speedMultiplier);
         rightFront.setPower(rf * speedMultiplier);
         rightBack.setPower(rb * speedMultiplier);
     }

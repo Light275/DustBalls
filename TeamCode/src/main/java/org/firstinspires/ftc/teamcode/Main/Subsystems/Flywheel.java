@@ -3,20 +3,33 @@ package org.firstinspires.ftc.teamcode.Main.Subsystems;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Main.Utils.PID;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class Flywheel {
 
-    private DcMotorEx shooterL, shooterR;
+    private final DcMotorEx shooterL, shooterR;
+
+    // velocity smoothing buffer (ticks/sec)
+    private final Deque<Double> velBuffer = new ArrayDeque<>();
+    private final int BUFFER_SIZE = 10;
+    private double smoothedVelocity = 0.0;
+
+    // last tick/time for instantaneous velocity calc
     private double lastTicks = 0;
     private double lastTime = 0;
-    private double velocity = 0; // measured velocity
+    public double power;
 
-    private PID pid;
-    private double velocityTolerance = 50; // "ready" tolerance
+    // control params (tunable)
+    private double kP = 0.02;
+    private double minPower = 0.6;         // minimum power to keep wheel spinning when desired
+    private double maxPower = 1.0;
+    private double velocityTolerance = 400;
 
-    private static final double IDLE_POWER = 0.2;
+    // target
+    private double targetVelocity = 0.0;
 
     public Flywheel(HardwareMap hardwareMap) {
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
@@ -33,13 +46,12 @@ public class Flywheel {
 
         lastTicks = shooterL.getCurrentPosition();
         lastTime = System.nanoTime() / 1e9;
-
-        pid = new PID(0.0008, 0.00001, 0.00005); // tuned for smooth output
-        pid.setOutputLimits(0.05, 1); // small minimum so motors spin
-        pid.setEnabled(true);
     }
 
-    /** Update encoder velocity */
+    /**
+     * Call frequently to compute smoothed velocity (ticks/sec).
+     * This pushes the instantaneous velocity into a rolling buffer and computes the average.
+     */
     public void updateVelocity() {
         double currentTicks = shooterL.getCurrentPosition();
         double currentTime = System.nanoTime() / 1e9;
@@ -47,52 +59,95 @@ public class Flywheel {
         double deltaTicks = currentTicks - lastTicks;
         double deltaTime = currentTime - lastTime;
 
-        if (deltaTime > 0) velocity = deltaTicks / deltaTime;
+        double instVel = 0.0;
+        if (deltaTime > 0) {
+            instVel = deltaTicks / deltaTime;
+        }
+
+        // push into buffer
+        velBuffer.addLast(instVel);
+        if (velBuffer.size() > BUFFER_SIZE) velBuffer.removeFirst();
+
+        // compute average
+        double sum = 0.0;
+        for (double v : velBuffer) sum += v;
+        smoothedVelocity = velBuffer.isEmpty() ? 0.0 : (sum / velBuffer.size());
 
         lastTicks = currentTicks;
         lastTime = currentTime;
     }
 
-    /** Get current shooter velocity */
+    /** Returns the smoothed velocity (ticks/sec). */
     public double getShooterVelocity() {
-        return velocity;
+        return smoothedVelocity;
     }
 
-    /** Return PID-corrected power for a target velocity */
-    public double getPIDPower(double targetVelocity) {
-        // smooth PID output
-        return pid.update(velocity, targetVelocity);
+    /** Set the target velocity (ticks/sec). */
+    public void setTargetVelocity(double target) {
+        this.targetVelocity = Math.max(0.0, target);
     }
 
-    /** Spin motors */
-    public void spin(double power) {
+    /** Get current target velocity. */
+    public double getTargetVelocity() {
+        return targetVelocity;
+    }
+
+    /** Set proportional gain. */
+    public void setkP(double kP) {
+        this.kP = kP;
+    }
+
+    /** Set minimum holding power (used when targetVelocity > 0). */
+    public void setMinPower(double minPower) {
+        this.minPower = Range.clip(minPower, 0.0, 1.0);
+    }
+
+    /** Set max motor power. */
+    public void setMaxPower(double maxPower) {
+        this.maxPower = Range.clip(maxPower, 0.0, 1.0);
+    }
+
+    /** Set how close we consider "at target". */
+    public void setVelocityTolerance(double tol) {
+        this.velocityTolerance = Math.max(0.0, tol);
+    }
+
+    /** Returns true when smoothed velocity is within tolerance of target. */
+    public boolean isAtTargetVelocity() {
+        return Math.abs(smoothedVelocity - targetVelocity) <= velocityTolerance;
+    }
+
+    /**
+     * Proportional control to drive motors toward targetVelocity.
+     * - power = minPower + kP * (error)
+     * - clipped to [0, maxPower]
+     *
+     * Behavior note:
+     * - If targetVelocity > 0 we maintain at least minPower to keep wheel turning.
+     * - If targetVelocity == 0 we allow power to go to 0 (so we can stop).
+     */
+    public void updateControl() {
+        double error = targetVelocity - smoothedVelocity;
+        power = minPower + kP * error;
+
+        // If target is zero, allow power to drop to zero
+        if (targetVelocity <= 0.0) {
+            power = kP * error; // can be negative or zero; we'll clip below
+        }
+
+        // clip and ensure we don't drive negative (flywheel spins forward only)
+        power = Range.clip(power, 0.0, maxPower);
+
         shooterL.setPower(power);
         shooterR.setPower(power);
     }
 
-    /** Enable PID */
-    public void enablePID() {
-        pid.setEnabled(true);
+    /** Manual spin override. */
+    public void spin(double power) {
+        power = Range.clip(power, -maxPower, maxPower);
+        shooterL.setPower(power);
+        shooterR.setPower(power);
     }
 
-    /** Disable PID */
-    public void disablePID() {
-        pid.setEnabled(false);
-        spin(IDLE_POWER);
-    }
 
-    /** Update PID coefficients live */
-    public void setPIDCoefficients(double kP, double kI, double kD) {
-        pid.setPID(kP, kI, kD);
-    }
-
-    /** Flywheel "ready" check */
-    public boolean isAtTargetVelocity(double targetVelocity) {
-        return Math.abs(velocity - targetVelocity) <= velocityTolerance;
-    }
-
-    /** Optional: set tolerance */
-    public void setVelocityTolerance(double tolerance) {
-        velocityTolerance = tolerance;
-    }
 }

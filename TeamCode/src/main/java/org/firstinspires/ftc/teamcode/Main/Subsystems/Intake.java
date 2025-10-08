@@ -9,13 +9,10 @@ public class Intake {
     private DcMotorEx indexer;
 
     private double intakeSpeed = 1.0;
-    private double indexerSpeed = 1.0;
-    private double indexerIdle = 0.0; // stopped when idle
+    private double indexerSpeed = -1.0;
+    private double indexerIdle = -0.7; // stopped when idle
 
     private ColorSensors colorSensors;
-
-    private double lastBallTime = 0;       // timestamp of last ball detection
-    private final double INDEXER_DELAY = 0.75; // seconds to keep running after last ball
 
     public Intake(HardwareMap hardwareMap, ColorSensors colorSensors) {
         this.intake = hardwareMap.get(DcMotorEx.class, "intake");
@@ -44,24 +41,17 @@ public class Intake {
         if (intakeIn) {
             intake.setPower(intakeSpeed);
             indexer.setPower(indexerSpeed);
-            lastBallTime = currentTime; // reset timer while intake is running
         } else if (intakeOut) {
             intake.setPower(-intakeSpeed);
             indexer.setPower(-indexerSpeed);
-            lastBallTime = currentTime; // reset timer for outtake too
         } else if (numBalls > 0) {
             // Auto-run indexer if balls are detected
             intake.setPower(0);
             indexer.setPower(indexerSpeed);
-            lastBallTime = currentTime;
         } else {
             // Check delay: keep indexer running for INDEXER_DELAY seconds after last ball
             intake.setPower(0);
-            if (currentTime - lastBallTime < INDEXER_DELAY) {
-                indexer.setPower(indexerSpeed);
-            } else {
-                indexer.setPower(indexerIdle); // stop
-            }
+            indexer.setPower(indexerIdle); // stop
         }
     }
 

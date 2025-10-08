@@ -19,11 +19,11 @@ public class Diffy {
     public static double kP_R = 0.0003;
 
     // --- Power settings ---
-    public static double minPower = 0.07;
+    public static double minPower = 0.085;
     public static double maxPower = 1.0;
 
     // --- Precision ---
-    public static double toleranceTicks = 130;
+    public static double toleranceTicks = 250;
 
     // --- Slots & turret angle ---
     public static double slot1Pos = -5500;

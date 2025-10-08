@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.CAL;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+@Disabled
 @TeleOp(name = "Nolan is amazing", group = "Testing")
 public class Nolanpooki extends OpMode {
     private DcMotorEx flywheelMotor, intake, leftFront, leftBack, rightFront, rightBack;
