@@ -7,31 +7,32 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.CONFIG.RobotConfig;
 import org.firstinspires.ftc.teamcode.Main.Robot;
 import org.firstinspires.ftc.teamcode.Main.Subsystems.Diffy;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Flywheel;
 
 @Config
-@TeleOp(name = "TELEOP Turret + Flywheel Dashboard", group = "Competitions")
+@TeleOp(name = "GURT TELEOP", group = "Competitions")
 public class TELEOP extends OpMode {
 
     private Robot robot;
     private FtcDashboard dashboard;
 
     // --- Diffy angle tuning ---
-    public static double fixedTurretAngle = 90; // Dashboard tunable
+    public static double TurretAngle = 90; // Dashboard tunable
     private static final double MIN_ANGLE = 0;
     private static final double MAX_ANGLE = 180;
 
     // --- Flywheel tuning ---
     public static double flywheel_kP = 0.028;
-    public static double flywheel_minPower = 0.6;
+    public static double flywheel_minPower = 0.4;
     public static double flywheel_velocityTolerance = 400;
     public static double targetVelocity = 1800; // Starting target
     public static double velocityIncrement = 50; // How much each stick input changes velocity
 
     @Override
     public void init() {
+
         robot = new Robot(hardwareMap);
         dashboard = FtcDashboard.getInstance();
 
@@ -68,7 +69,8 @@ public class TELEOP extends OpMode {
         }
 
         // --- TURRET CONTROL ---
-        double clampedAngle = Range.clip(fixedTurretAngle, MIN_ANGLE, MAX_ANGLE);
+        TurretAngle = robot.diffy.aimTurretAngle(robot.xPOS, robot.yPOS, robot.headingRad);
+        double clampedAngle = Range.clip(TurretAngle, MIN_ANGLE, MAX_ANGLE);
         robot.diffy.goToSlot(3);
         robot.diffy.setAngle(clampedAngle);
         robot.diffy.update();
@@ -120,6 +122,10 @@ public class TELEOP extends OpMode {
         telemetry.addData("Arm3Pos", robot.arms.getArm3Pos());
         telemetry.addData("SpatulaPos", robot.spatula.getPosition());
         telemetry.addData("POWER:", robot.flywheel.power);
+
+        telemetry.addData("X POS:", robot.xPOS);
+        telemetry.addData("Y POS:", robot.yPOS);
+        telemetry.addData("HEADING:", Math.toDegrees(robot.headingRad));
         telemetry.update();
     }
 }

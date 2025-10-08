@@ -23,10 +23,12 @@ public class Robot {
     public Diffy diffy;
     public Spatula spatula;
 
+    public double xPOS, yPOS, headingRad;
+
     public Robot(HardwareMap hardwareMap) {
         // Initialize subsystems
         colorSensors = new ColorSensors(hardwareMap);
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(90)));
         drivetrain = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap, colorSensors);
         flywheel = new Flywheel(hardwareMap);
@@ -38,6 +40,9 @@ public class Robot {
     /** Call every loop to update subsystems. */
     public void update() {
         drive.updatePoseEstimate();
+        xPOS = drive.localizer.getPose().position.x;
+        yPOS = drive.localizer.getPose().position.y;
+        headingRad = drive.localizer.getPose().heading.toDouble();
         arms.update();
 
         // Keep spatula always ON

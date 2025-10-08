@@ -7,23 +7,31 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.CONFIG.RobotConfig;
+import org.firstinspires.ftc.teamcode.Main.Robot;
+
 @Config
 public class Diffy {
+
+    public static double BLUE_GOAL_X = -60;
+    public static double BLUE_GOAL_Y = 60;
+    public static double RED_GOAL_X = 60;
+    public static double RED_GOAL_Y = 60;
 
     // --- Targets ---
     public static double targetL = 0;
     public static double targetR = 0;
 
     // --- PID ---
-    public static double kP_L = 0.0003;
-    public static double kP_R = 0.0003;
+    public static double kP_L = 0.0008;
+    public static double kP_R = 0.0008;
 
     // --- Power settings ---
-    public static double minPower = 0.085;
+    public static double minPower = 0.11;
     public static double maxPower = 1.0;
 
     // --- Precision ---
-    public static double toleranceTicks = 250;
+    public static double toleranceTicks = 225;
 
     // --- Slots & turret angle ---
     public static double slot1Pos = -5500;
@@ -137,5 +145,25 @@ public class Diffy {
     public boolean atTarget() {
         double[] e = getErrors();
         return Math.abs(e[0]) <= toleranceTicks && Math.abs(e[1]) <= toleranceTicks;
+    }
+
+    // AIM TO GOAL
+    public double aimTurretAngle(double x, double y, double headingRad) {
+        if (RobotConfig.alliance == RobotConfig.Alliance.BLUE) {
+            double errorX = Math.abs(BLUE_GOAL_X - x);
+            double errorY = Math.abs(BLUE_GOAL_Y - y);
+
+            return (Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -90; // -90 bc 0-180 instead of -90/90
+
+        } else if (RobotConfig.alliance == RobotConfig.Alliance.RED) {
+            double errorX = Math.abs(RED_GOAL_X - x);
+            double errorY = Math.abs(RED_GOAL_Y - y);
+
+            return (Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -90;
+        } else {
+            return 90;
+        }
+
+
     }
 }
