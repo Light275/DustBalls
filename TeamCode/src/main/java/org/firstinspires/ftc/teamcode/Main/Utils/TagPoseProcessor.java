@@ -2,61 +2,49 @@ package org.firstinspires.ftc.teamcode.Main.Utils;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.Drawing;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 import java.util.List;
-@Disabled
-@TeleOp(name = "Tag Pose Processor", group = "Competitions")
-public class TagPoseProcessor extends LinearOpMode {
+
+public class TagPoseProcessor {
 
     private AprilTagProcessor goalTag;
     private VisionPortal visionPortal;
 
     private Pose2d relativePose = new Pose2d(0, 0, 0);
-    private Pose2d globalPose   = new Pose2d(0, 0, 0);
+    private Pose2d globalPose = new Pose2d(0, 0, 0);
 
-    private final Position cameraPosition = new Position(DistanceUnit.INCH,
-            0, 0, 23, 0);
-
+    // Camera pose
+    private final Position cameraPosition = new Position(DistanceUnit.INCH, 4.875, 7.5, 14.25, 0);
     private final YawPitchRollAngles cameraOrientation =
-            new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0);
+            new YawPitchRollAngles(AngleUnit.DEGREES, 0, -80.5, 180, 0);
 
-    @Override
-    public void runOpMode() {
-        initAprilTag();
-        waitForStart();
-
-        while (opModeIsActive()) {
-            processAprilTag();
-        }
-
-        visionPortal.close();
+    public TagPoseProcessor(HardwareMap hardwareMap) {
+        initAprilTag(hardwareMap);
     }
 
-    private void initAprilTag() {
+    private void initAprilTag(HardwareMap hardwareMap) {
         goalTag = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .setDrawTagOutline(true)
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
-                // C270 Intrinsics
                 .setLensIntrinsics(822.317f, 822.317f, 319.495f, 242.502f)
                 .build();
 
@@ -70,110 +58,67 @@ public class TagPoseProcessor extends LinearOpMode {
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
     }
 
-    private void processAprilTag() {
+    public void update() {
         List<AprilTagDetection> detections = goalTag.getDetections();
+        if (detections.isEmpty()) return;
 
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.fieldOverlay().setStroke("#3F51B5");
+        for (AprilTagDetection detection : detections) {
+            if (detection.metadata != null && detection.id == 20) {
 
-        if (detections.isEmpty()) {
-            packet.put("Status", "No tag detected");
-        } else {
-            boolean foundTarget = false;
+                double relX = detection.ftcPose.y;
+                double relY = -detection.ftcPose.x;
+                double relYaw = detection.ftcPose.yaw; // degrees
+                relativePose = new Pose2d(relX, relY, Math.toRadians(relYaw));
 
-            for (AprilTagDetection detection : detections) {
-                if (detection.metadata != null && detection.id == 24) { // lock onto tag ID 20
-                    foundTarget = true;
+                VectorF tagPos = detection.metadata.fieldPosition;
+                Quaternion tagQ = detection.metadata.fieldOrientation;
 
-                    // Relative pose (robot wrt tag)
-                    double relX = detection.ftcPose.y;
-                    double relY = -detection.ftcPose.x;
-                    double relYaw = detection.ftcPose.yaw; // deg
-                    relativePose = new Pose2d(relX, relY, Math.toRadians(relYaw));
+                double tagX = tagPos.get(0) / 25.4; // mm -> in
+                double tagY = tagPos.get(1) / 25.4;
+                double tagYawDeg = (tagQ != null) ? getYawFromQuaternion(tagQ) : 144;
 
-                    // Distance from camera to tag
-                    double distance = Math.hypot(relX, relY);
+                globalPose = toGlobalPose(tagX, tagY, tagYawDeg, relX, relY, relYaw);
 
-                    // Tag global pose
-                    VectorF tagPos = detection.metadata.fieldPosition;   // mm
-                    Quaternion tagQ = detection.metadata.fieldOrientation;
-
-                    // Extract yaw from quaternion if available
-                    double tagYawDeg = 144; // default if null
-                    if (tagQ != null) {
-                        tagYawDeg = getYawFromQuaternion(tagQ, AngleUnit.DEGREES);
-                    }
-
-                    double tagX = tagPos.get(0) / 25.4; // convert mm→in
-                    double tagY = tagPos.get(1) / 25.4;
-
-                    // Transform into field coordinates
-                    globalPose = toGlobalPose(tagX, tagY, tagYawDeg, relX, relY, relYaw);
-
-                    // Dashboard telemetry
-                    packet.put("tagYawDeg", tagYawDeg);
-                    packet.put("rel X", relX);
-                    packet.put("rel Y", relY);
-                    packet.put("rel Yaw", relYaw);
-                    packet.put("Robot X (in)", globalPose.position.x);
-                    packet.put("Robot Y (in)", globalPose.position.y);
-                    packet.put("Robot Heading (deg)", Math.toDegrees(globalPose.heading.toDouble()));
-                    packet.put("Distance to Tag (in)", distance);
-
-                    Drawing.drawRobot(packet.fieldOverlay(), globalPose);
-                    Drawing.drawRobot(packet.fieldOverlay(), relativePose);
-                }
-            }
-
-            if (!foundTarget) {
-                packet.put("Status", "No target tag (ID 20) detected");
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.put("Robot X", globalPose.position.x);
+                packet.put("Robot Y", globalPose.position.y);
+                packet.put("Robot Heading", Math.toDegrees(globalPose.heading.toDouble()));
+                FtcDashboard.getInstance().sendTelemetryPacket(packet);
             }
         }
-
-        FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }
 
-    /**
-     * Extract yaw (rotation around Z) from a Quaternion.
-     */
-    private static double getYawFromQuaternion(Quaternion q, AngleUnit unit) {
-        if (q == null) return 0; // null-safe
+    public Pose2d getTagPose() {
+        return globalPose;
+    }
+
+    public void close() {
+        visionPortal.close();
+    }
+
+    private static double getYawFromQuaternion(Quaternion q) {
         double w = q.w;
         double x = q.x;
         double y = q.y;
         double z = q.z;
 
-        // Yaw (Z axis rotation)
-        double yaw = Math.atan2(2.0 * (w * z + x * y),
-                1.0 - 2.0 * (y * y + z * z));
-
-        if (unit == AngleUnit.DEGREES) {
-            yaw = Math.toDegrees(yaw);
-        }
-        return yaw;
+        double yaw = Math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y*y + z*z));
+        return Math.toDegrees(yaw);
     }
 
-    /**
-     * Convert tag-relative pose → global field pose.
-     */
-    private static Pose2d toGlobalPose(
-            double tagFieldX, double tagFieldY,
-            double tagYawDeg,
-            double relX, double relY,
-            double relYawDeg) {
-
+    private static Pose2d toGlobalPose(double tagX, double tagY, double tagYawDeg,
+                                       double relX, double relY, double relYawDeg) {
         double tagYawRad = Math.toRadians(tagYawDeg);
         double relYawRad = Math.toRadians(relYawDeg);
 
         double cos = Math.cos(tagYawRad - relYawRad);
         double sin = Math.sin(tagYawRad - relYawRad);
 
-        double globalX = tagFieldX - (relX * cos - relY * sin);
-        double globalY = tagFieldY - (relX * sin + relY * cos);
-
+        double globalY = tagX - (relX * cos - relY * sin) - 60;
+        double globalX = tagY - (relX * sin + relY * cos) + 37;
         double globalHeading = normalizeRadians(tagYawRad + relYawRad);
 
-        return new Pose2d(globalY, -globalX, -globalHeading);
+        return new Pose2d(-globalX, -globalY, globalHeading);
     }
 
     private static double normalizeRadians(double a) {

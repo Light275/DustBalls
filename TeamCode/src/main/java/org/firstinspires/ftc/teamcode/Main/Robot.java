@@ -3,13 +3,9 @@ package org.firstinspires.ftc.teamcode.Main;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Arms;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.ColorSensors;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Diffy;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Flywheel;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Intake;
-import org.firstinspires.ftc.teamcode.Main.Subsystems.Spatula;
+import org.firstinspires.ftc.teamcode.Main.Subsystems.*;
+import org.firstinspires.ftc.teamcode.Main.Utils.PoseFusion;
+import org.firstinspires.ftc.teamcode.Main.Utils.TagPoseProcessor;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 public class Robot {
@@ -23,12 +19,12 @@ public class Robot {
     public Diffy diffy;
     public Spatula spatula;
 
+    public Pose2d calibratedPose = new Pose2d(7.3, -56.5, Math.toRadians(90));
     public double xPOS, yPOS, headingRad;
 
     public Robot(HardwareMap hardwareMap) {
-        // Initialize subsystems
         colorSensors = new ColorSensors(hardwareMap);
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(90)));
+        drive = new MecanumDrive(hardwareMap, calibratedPose);
         drivetrain = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap, colorSensors);
         flywheel = new Flywheel(hardwareMap);
@@ -37,15 +33,15 @@ public class Robot {
         spatula = new Spatula(hardwareMap);
     }
 
-    /** Call every loop to update subsystems. */
     public void update() {
         drive.updatePoseEstimate();
-        xPOS = drive.localizer.getPose().position.x;
-        yPOS = drive.localizer.getPose().position.y;
-        headingRad = drive.localizer.getPose().heading.toDouble();
-        arms.update();
+        Pose2d odoPose = drive.localizer.getPose();
 
-        // Keep spatula always ON
+        xPOS = odoPose.position.x;
+        yPOS = odoPose.position.y;
+        headingRad = odoPose.heading.toDouble();
+
+        arms.update();
         spatula.spatulaON();
     }
 }

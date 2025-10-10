@@ -15,7 +15,7 @@ public class Arms {
     public static double ARM_1_DOWN = 0.195;
     public static double ARM_2_UP = 0.55;
     public static double ARM_2_DOWN = 0.34;
-    public static double ARM_3_UP = 0.64;
+    public static double ARM_3_UP = 0.67;
     public static double ARM_3_DOWN = 0.34;
 
     // Flick duration (seconds)

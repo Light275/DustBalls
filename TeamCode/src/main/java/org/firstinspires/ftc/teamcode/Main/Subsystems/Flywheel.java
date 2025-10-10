@@ -14,7 +14,7 @@ public class Flywheel {
 
     // velocity smoothing buffer (ticks/sec)
     private final Deque<Double> velBuffer = new ArrayDeque<>();
-    private final int BUFFER_SIZE = 10;
+    private final int BUFFER_SIZE = 18;
     private double smoothedVelocity = 0.0;
 
     // last tick/time for instantaneous velocity calc
@@ -23,10 +23,10 @@ public class Flywheel {
     public double power;
 
     // control params (tunable)
-    private double kP = 0.02;
-    private double minPower = 0.6;         // minimum power to keep wheel spinning when desired
+    private double kP = 0.05;
+    private double minPower = 0;         // minimum power to keep wheel spinning when desired
     private double maxPower = 1.0;
-    private double velocityTolerance = 400;
+    private double velocityTolerance = 200;
 
     // target
     private double targetVelocity = 0.0;
@@ -128,7 +128,7 @@ public class Flywheel {
      */
     public void updateControl() {
         double error = targetVelocity - smoothedVelocity;
-        power = minPower + kP * error;
+        power = kP * error;
 
         // If target is zero, allow power to drop to zero
         if (targetVelocity <= 0.0) {

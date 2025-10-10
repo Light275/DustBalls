@@ -13,25 +13,25 @@ import org.firstinspires.ftc.teamcode.Main.Robot;
 @Config
 public class Diffy {
 
-    public static double BLUE_GOAL_X = -60;
-    public static double BLUE_GOAL_Y = 60;
-    public static double RED_GOAL_X = 60;
-    public static double RED_GOAL_Y = 60;
+    public static double BLUE_GOAL_X = -55;
+    public static double BLUE_GOAL_Y = 74;
+    public static double RED_GOAL_X = 72;
+    public static double RED_GOAL_Y = 72;
 
     // --- Targets ---
     public static double targetL = 0;
     public static double targetR = 0;
 
     // --- PID ---
-    public static double kP_L = 0.0008;
-    public static double kP_R = 0.0008;
+    public static double kP_L = 0.0004;
+    public static double kP_R = 0.0004;
 
     // --- Power settings ---
-    public static double minPower = 0.11;
+    public static double minPower = 0;
     public static double maxPower = 1.0;
 
     // --- Precision ---
-    public static double toleranceTicks = 225;
+    public static double toleranceTicks = 175;
 
     // --- Slots & turret angle ---
     public static double slot1Pos = -5500;
@@ -62,7 +62,7 @@ public class Diffy {
         encR.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
-        // ✅ Make both servos run the same direction
+        // Make both servos run the same direction
         diffyL.setDirection(CRServo.Direction.FORWARD);
         diffyR.setDirection(CRServo.Direction.FORWARD);
 
@@ -153,13 +153,13 @@ public class Diffy {
             double errorX = Math.abs(BLUE_GOAL_X - x);
             double errorY = Math.abs(BLUE_GOAL_Y - y);
 
-            return (Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -90; // -90 bc 0-180 instead of -90/90
+            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -88); // -90 bc 0-180 instead of -90/90
 
         } else if (RobotConfig.alliance == RobotConfig.Alliance.RED) {
             double errorX = Math.abs(RED_GOAL_X - x);
             double errorY = Math.abs(RED_GOAL_Y - y);
 
-            return (Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -90;
+            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -90);
         } else {
             return 90;
         }

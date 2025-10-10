@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-@Disabled
 @TeleOp(name = "Nolan is amazing", group = "Testing")
 public class Nolanpooki extends OpMode {
     private DcMotorEx flywheelMotor, intake, leftFront, leftBack, rightFront, rightBack;

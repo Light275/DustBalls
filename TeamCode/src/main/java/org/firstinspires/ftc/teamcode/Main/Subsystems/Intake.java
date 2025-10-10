@@ -65,6 +65,10 @@ public class Intake {
         indexer.setPower(power);
     }
 
+    public void runIntake (double power) {
+        intake.setPower(power);
+    }
+
     /** Getter for indexer speed */
     public double getIndexerSpeed() {
         return indexerSpeed;
