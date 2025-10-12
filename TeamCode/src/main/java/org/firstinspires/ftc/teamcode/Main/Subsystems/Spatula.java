@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Spatula {
     private final Servo spatula;
-    private static final double ENGAGED = 0.565;   // ON position
+    private static final double ENGAGED = 0.55;   // ON position
     private static final double DISENGAGED = 0.604; // OFF position
 
     public Spatula(HardwareMap hardwareMap) {

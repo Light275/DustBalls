@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.Main.Robot;
 @Config
 public class Diffy {
 
-    public static double BLUE_GOAL_X = -55;
-    public static double BLUE_GOAL_Y = 74;
+    public static double BLUE_GOAL_X = -65;
+    public static double BLUE_GOAL_Y = 65;
     public static double RED_GOAL_X = 72;
     public static double RED_GOAL_Y = 72;
 
@@ -153,7 +153,7 @@ public class Diffy {
             double errorX = Math.abs(BLUE_GOAL_X - x);
             double errorY = Math.abs(BLUE_GOAL_Y - y);
 
-            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -88); // -90 bc 0-180 instead of -90/90
+            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -85); // -90 bc 0-180 instead of -90/90
 
         } else if (RobotConfig.alliance == RobotConfig.Alliance.RED) {
             double errorX = Math.abs(RED_GOAL_X - x);

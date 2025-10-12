@@ -43,8 +43,8 @@ public class Drivetrain {
 
         double lf = drive + strafe + rotate;
         double lb = drive - strafe + rotate;
-        double rf = drive + strafe - rotate;
-        double rb = drive - strafe - rotate;
+        double rf = drive - strafe - rotate;
+        double rb = drive + strafe - rotate;
 
         // Normalize to prevent ratio distortion
         double max = Math.max(1.0, Math.abs(lf));

@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.Main;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.Main.Subsystems.*;
-import org.firstinspires.ftc.teamcode.Main.Utils.PoseFusion;
-import org.firstinspires.ftc.teamcode.Main.Utils.TagPoseProcessor;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 public class Robot {
@@ -27,7 +26,13 @@ public class Robot {
         drive = new MecanumDrive(hardwareMap, calibratedPose);
         drivetrain = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap, colorSensors);
-        flywheel = new Flywheel(hardwareMap);
+
+        // --- Grab the first voltage sensor in the hardware map ---
+        VoltageSensor battery = hardwareMap.voltageSensor.iterator().hasNext()
+                ? hardwareMap.voltageSensor.iterator().next()
+                : null;
+
+        flywheel = new Flywheel(hardwareMap, battery); // Pass battery to Flywheel
         arms = new Arms(hardwareMap);
         diffy = new Diffy(hardwareMap);
         spatula = new Spatula(hardwareMap);
@@ -36,6 +41,7 @@ public class Robot {
     public void update() {
         drive.updatePoseEstimate();
         Pose2d odoPose = drive.localizer.getPose();
+        spatula.spatulaON();
 
         xPOS = odoPose.position.x;
         yPOS = odoPose.position.y;
