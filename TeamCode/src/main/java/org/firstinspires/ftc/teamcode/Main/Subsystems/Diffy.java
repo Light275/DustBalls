@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.CONFIG.RobotConfig;
-import org.firstinspires.ftc.teamcode.Main.Robot;
 
 @Config
 public class Diffy {
@@ -18,38 +17,29 @@ public class Diffy {
     public static double RED_GOAL_X = 72;
     public static double RED_GOAL_Y = 72;
 
-    // --- Targets ---
     public static double targetL = 0;
     public static double targetR = 0;
 
-    // --- PID ---
-    public static double kP_L = 0.0004;
-    public static double kP_R = 0.0004;
+    public static double kP_L = 0.0002;
+    public static double kP_R = 0.0002;
 
-    // --- Power settings ---
     public static double minPower = 0;
     public static double maxPower = 1.0;
-
-    // --- Precision ---
     public static double toleranceTicks = 175;
 
-    // --- Slots & turret angle ---
-    public static double slot1Pos = -5500;
+    public static double slot1Pos = -5200;
     public static double slot2Pos = -2800;
     public static double slot3Pos = 0;
 
-    public static double angleOffset = 0;     // Current added offset
-    public static double angleScale = 34.4;   // Ticks per degree
+    public static double angleOffset = 0;
+    public static double angleScale = 34.4;
 
-    // --- Angle limits ---
     public static double minAngle = 0;
     public static double maxAngle = 180;
 
-    // --- Hardware ---
     public CRServo diffyL, diffyR;
     public DcMotorEx encL, encR;
 
-    // --- Internal base for slot position ---
     private double currentSlotBase = 0;
 
     public Diffy(HardwareMap hardwareMap) {
@@ -59,22 +49,26 @@ public class Diffy {
         encL = hardwareMap.get(DcMotorEx.class, "intake");
         encR = hardwareMap.get(DcMotorEx.class, "leftBack");
         encL.setDirection(DcMotorSimple.Direction.FORWARD);
-        encR.setDirection(DcMotorSimple.Direction.FORWARD);
+        encR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
-        // Make both servos run the same direction
         diffyL.setDirection(CRServo.Direction.FORWARD);
         diffyR.setDirection(CRServo.Direction.FORWARD);
 
         resetEncoders();
     }
 
-    /** Update proportional control loop */
     public void update() {
         double errorL = targetL - encL.getCurrentPosition();
-        double errorR = targetR - encR.getCurrentPosition();
+        double errorR = targetR + encR.getCurrentPosition();
 
-        // --- Stop motors if turret exceeds safe limits ---
+        // Safety: stop once within tolerance
+        if (Math.abs(errorL) < toleranceTicks && Math.abs(errorR) < toleranceTicks) {
+            diffyL.setPower(0);
+            diffyR.setPower(0);
+            return;
+        }
+
+        // Angle limits
         if (angleOffset < minAngle && errorL > 0 && errorR < 0) {
             errorL = 0;
             errorR = 0;
@@ -84,6 +78,7 @@ public class Diffy {
             errorR = 0;
         }
 
+        // PID (proportional only)
         double powerL = Range.clip(errorL * kP_L, -maxPower, maxPower);
         double powerR = Range.clip(errorR * kP_R, -maxPower, maxPower);
 
@@ -91,12 +86,11 @@ public class Diffy {
         if (Math.abs(powerL) < minPower) powerL = 0;
         if (Math.abs(powerR) < minPower) powerR = 0;
 
-        // --- Apply power ---
+        // Apply (mirror right side)
         diffyL.setPower(powerL);
-        diffyR.setPower(-powerR); // mirror right side here (software)
+        diffyR.setPower(-powerR);
     }
 
-    /** Encoder errors */
     public double[] getErrors() {
         return new double[]{
                 targetL - encL.getCurrentPosition(),
@@ -104,7 +98,6 @@ public class Diffy {
         };
     }
 
-    /** Move to slot (1, 2, or 3) */
     public void goToSlot(int slot) {
         switch (slot) {
             case 1: currentSlotBase = slot1Pos; break;
@@ -115,13 +108,11 @@ public class Diffy {
         updateTargets();
     }
 
-    /** Set turret rotation offset */
     public void setAngle(double offset) {
         angleOffset = Range.clip(offset, minAngle, maxAngle);
         updateTargets();
     }
 
-    /** Update target positions */
     private void updateTargets() {
         targetL = currentSlotBase - angleOffset * angleScale;
         targetR = currentSlotBase + angleOffset * angleScale;
@@ -133,6 +124,8 @@ public class Diffy {
         targetL = 0;
         targetR = 0;
         resetEncoders();
+        diffyL.setPower(0);
+        diffyR.setPower(0);
     }
 
     public void resetEncoders() {
@@ -147,23 +140,17 @@ public class Diffy {
         return Math.abs(e[0]) <= toleranceTicks && Math.abs(e[1]) <= toleranceTicks;
     }
 
-    // AIM TO GOAL
     public double aimTurretAngle(double x, double y, double headingRad) {
         if (RobotConfig.alliance == RobotConfig.Alliance.BLUE) {
             double errorX = Math.abs(BLUE_GOAL_X - x);
             double errorY = Math.abs(BLUE_GOAL_Y - y);
-
-            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -85); // -90 bc 0-180 instead of -90/90
-
+            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) - 85);
         } else if (RobotConfig.alliance == RobotConfig.Alliance.RED) {
             double errorX = Math.abs(RED_GOAL_X - x);
             double errorY = Math.abs(RED_GOAL_Y - y);
-
-            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) -90);
+            return ((Math.toDegrees(Math.atan2(errorY, errorX))) + Math.toDegrees(headingRad) - 90);
         } else {
             return 90;
         }
-
-
     }
 }

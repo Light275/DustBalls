@@ -10,8 +10,6 @@ public class RobotConfig {
     }
 
     /** Public static so it can be accessed anywhere */
-    public static Alliance alliance = Alliance.BLUE;
+    public static Alliance alliance = Alliance.UNKNOWN;
 
-    /** Optional: store other global settings */
-    public static boolean isAutonomousDone = false;
 }

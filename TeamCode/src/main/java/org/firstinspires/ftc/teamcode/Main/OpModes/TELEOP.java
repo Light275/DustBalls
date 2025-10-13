@@ -49,12 +49,12 @@ public class TELEOP extends com.qualcomm.robotcore.eventloop.opmode.OpMode {
         robot.drivetrain.move(drive, strafe, rotate, slowMode);
 
         // --- INTAKE ---
-        robot.intake.update(gamepad1.left_bumper, gamepad1.dpad_down);
+        robot.intake.teleUpdate(gamepad1.left_bumper, gamepad1.dpad_down);
 
         // --- ARM FLICK & INDEXER ---
         if (gamepad1.a && robot.diffy.atTarget()) {
             robot.arms.flickArm3();
-            robot.intake.runIndexer(robot.intake.getIndexerSpeed());
+            robot.intake.runIndexerOnly(robot.intake.getIndexerSpeed());
         }
 
         // --- DISTANCE & TURRET CONTROL ---

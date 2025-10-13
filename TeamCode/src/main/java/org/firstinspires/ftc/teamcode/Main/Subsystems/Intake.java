@@ -33,7 +33,7 @@ public class Intake {
     }
 
     /** Call this each loop to control intake/indexer */
-    public void update(boolean intakeIn, boolean intakeOut) {
+    public void teleUpdate(boolean intakeIn, boolean intakeOut) {
         double numBalls = colorSensors.numBalls(); // current ball count
         double currentTime = System.nanoTime() / 1e9; // seconds
 
@@ -55,20 +55,12 @@ public class Intake {
     }
 
     /** Stop all motors immediately */
-    public void stop() {
-        intake.setPower(0);
-        indexer.setPower(0);
-    }
-
+    public void stopIntakeSystem() { intake.setPower(0); indexer.setPower(0);}
     /** Run indexer manually at a given power (for shooting) */
-    public void runIndexer(double power) {
+    public void runIndexerOnly(double power) {
         indexer.setPower(power);
     }
-
-    public void runIntake (double power) {
-        intake.setPower(power);
-    }
-
+    public void runIntakeOnly(double power) { intake.setPower(power); }
     /** Getter for indexer speed */
     public double getIndexerSpeed() {
         return indexerSpeed;
