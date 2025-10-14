@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 import java.lang.Math;
 
-@Autonomous(name = "9 Ball Auto Far", group = "Autonomous")
-public class UndefeatedAuto extends LinearOpMode {
+@Autonomous(name = "9 Ball Auto Far Close", group = "Autonomous")
+public class UndeFARtedAuto extends LinearOpMode {
 
     private Robot robot;
     private MecanumDrive drive;
@@ -145,9 +145,9 @@ public class UndefeatedAuto extends LinearOpMode {
                 : RobotConfig.Alliance.RED;
 
         if (RobotConfig.alliance == RobotConfig.Alliance.BLUE)
-            startPose = new Pose2d(-16.7, -56.5, Math.toRadians(90));
+            startPose = new Pose2d(-16.7, -62.5, Math.toRadians(90));
         else
-            startPose = new Pose2d(16.7, -56.5, Math.toRadians(90));
+            startPose = new Pose2d(16.7, -62.5, Math.toRadians(90));
 
         drive = new MecanumDrive(hardwareMap, startPose);
 
@@ -224,48 +224,96 @@ public class UndefeatedAuto extends LinearOpMode {
                         .afterTime(0.0, goToNextGantrySlot())
                         .afterTime(0.0, spinFlywheel(120))
                         .afterTime(0, turretAngle(20))
-                        .afterTime(2, turretAngle(73))
+                        .afterTime(2, turretAngle(90))
                         .afterTime(0.0, runIndexer(1.0))
                         .afterTime(0.0, runIntake(-1.0))
                         .afterTime(1, runIntake(1.0))
                         .afterTime(1, runIndexer(-1.0))
                         .afterTime(5, runIntake(0))
-                        .afterTime(3, spinFlywheel(430))
-                        .strafeToLinearHeading(new Vector2d(-30, -30), Math.toRadians(180),
+                        .afterTime(3, spinFlywheel(340))
+                        .strafeToLinearHeading(new Vector2d(-30, -36), Math.toRadians(180),
                                 new TranslationalVelConstraint(60),
                                 new ProfileAccelConstraint(-60, 60))
-                        .strafeToLinearHeading(new Vector2d(-57, -30), Math.toRadians(180),
+                        .strafeToLinearHeading(new Vector2d(-59, -36), Math.toRadians(180), // WALL [INTAKED]
                                 new TranslationalVelConstraint(30),
                                 new ProfileAccelConstraint(-30, 30))
-                        .strafeToLinearHeading(new Vector2d(-16.7, -54), Math.toRadians(90),
+                        .strafeToLinearHeading(new Vector2d(-16.7, -15), Math.toRadians(180),
+                                new TranslationalVelConstraint(80),
+                                new ProfileAccelConstraint(-80, 80))
+                        .strafeToLinearHeading(new Vector2d(-16.7, 15), Math.toRadians(130),
+                                new TranslationalVelConstraint(30),
+                                new ProfileAccelConstraint(-30, 30))
+                        .build(),
+                robot
+        );
+
+        Action blue_secondStackIntake = new UpdatingAction(
+                drive.actionBuilder(new Pose2d(-16.7, 15, Math.toRadians(130)))
+                        .afterTime(0.0, spatulaOff())
+                        .afterTime(0.0, goToNextGantrySlot())
+                        .afterTime(0.0, spinFlywheel(120))
+                        .afterTime(0, turretAngle(20))
+                        .afterTime(2, turretAngle(90))
+                        .afterTime(0.0, runIndexer(1.0))
+                        .afterTime(0.0, runIntake(-1.0))
+                        .afterTime(1, runIntake(1.0))
+                        .afterTime(1, runIndexer(-1.0))
+                        .afterTime(5, runIntake(0))
+                        .afterTime(3, spinFlywheel(340))
+                        .strafeToLinearHeading(new Vector2d(-16, -12), Math.toRadians(180),
+                                new TranslationalVelConstraint(60),
+                                new ProfileAccelConstraint(-60, 60))
+                        .strafeToLinearHeading(new Vector2d(-59, -12), Math.toRadians(180), // WALL [INTAKED]
+                                new TranslationalVelConstraint(50),
+                                new ProfileAccelConstraint(-50, 50))
+                        .strafeToLinearHeading(new Vector2d(-20, -12), Math.toRadians(130),
+                                new TranslationalVelConstraint(50),
+                                new ProfileAccelConstraint(-50, 50))
+                        .strafeToLinearHeading(new Vector2d(-16.7, 15), Math.toRadians(130),
                                 new TranslationalVelConstraint(50),
                                 new ProfileAccelConstraint(-50, 50))
                         .build(),
                 robot
         );
 
-        Action blue_secondStackIntake = new UpdatingAction(
-                drive.actionBuilder(startPose)
+        Action blue_thirdStackIntake = new UpdatingAction(
+                drive.actionBuilder(new Pose2d(-16.7, 15, Math.toRadians(130)))
                         .afterTime(0.0, spatulaOff())
                         .afterTime(0.0, goToNextGantrySlot())
                         .afterTime(0.0, spinFlywheel(120))
                         .afterTime(0, turretAngle(20))
-                        .afterTime(2, turretAngle(73))
+                        .afterTime(1.5, turretAngle(90))
                         .afterTime(0.0, runIndexer(1.0))
                         .afterTime(0.0, runIntake(-1.0))
-                        .afterTime(1, runIntake(1.0))
-                        .afterTime(1, runIndexer(-1.0))
+                        .afterTime(0.75, runIntake(1.0))
+                        .afterTime(0.75, runIndexer(-1.0))
                         .afterTime(5, runIntake(0))
-                        .afterTime(3, spinFlywheel(430))
-                        .strafeToLinearHeading(new Vector2d(-30, -6), Math.toRadians(180),
+                        .afterTime(3, spinFlywheel(340))
+                        .strafeToLinearHeading(new Vector2d(-16, 0), Math.toRadians(180),
                                 new TranslationalVelConstraint(60),
                                 new ProfileAccelConstraint(-60, 60))
-                        .strafeToLinearHeading(new Vector2d(-50, -6), Math.toRadians(180),
+                        .strafeToLinearHeading(new Vector2d(-50, 0), Math.toRadians(180),
                                 new TranslationalVelConstraint(30),
                                 new ProfileAccelConstraint(-30, 30))
-                        .strafeToLinearHeading(new Vector2d(-16.7, -54), Math.toRadians(90),
+                        .strafeToLinearHeading(new Vector2d(-20, 0), Math.toRadians(140),
                                 new TranslationalVelConstraint(50),
                                 new ProfileAccelConstraint(-50, 50))
+                        .strafeToLinearHeading(new Vector2d(-16.7, 15), Math.toRadians(140),
+                                new TranslationalVelConstraint(50),
+                                new ProfileAccelConstraint(-50, 50))
+                        .build(),
+                robot
+        );
+
+        Action blue_moveOffLine = new UpdatingAction(
+                drive.actionBuilder(new Pose2d(-16.7, 15, Math.toRadians(130)))
+                        .afterTime(0.0, spatulaOn())
+                        .afterTime(0.0, gantrySlot(3))
+                        .afterTime(0, turretAngle(90))
+                        .strafeToLinearHeading(new Vector2d(-30, 0), Math.toRadians(0),
+                                new TranslationalVelConstraint(80),
+                                new ProfileAccelConstraint(-80, 80))
+
                         .build(),
                 robot
         );
@@ -285,6 +333,7 @@ public class UndefeatedAuto extends LinearOpMode {
                         .afterTime(1.25, runIndexer(-1.0))
                         .afterTime(2, flickArm3())
                         .afterTime(3, flickArm3())
+                        .afterTime(0, setNextGantry(3)) // SET NEXT GANTRY ACCORDING TO MATRIX
                         .waitSeconds(3.4)
                         .build(),
                 robot
@@ -301,6 +350,7 @@ public class UndefeatedAuto extends LinearOpMode {
                         .afterTime(2.4, gantrySlot(3))
                         .afterTime(2.4, spatulaOn())
                         .afterTime(3.25, flickArm3())
+                        .afterTime(0, setNextGantry(1)) // SET NEXT GANTRY ACCORDING TO MATRIX
                         .waitSeconds(3.7)
                         .build(),
                 robot
@@ -317,6 +367,7 @@ public class UndefeatedAuto extends LinearOpMode {
                         .afterTime(1.25, runIndexer(-1.0))
                         .afterTime(1.75, flickArm3())
                         .afterTime(2.75, flickArm3())
+                        .afterTime(0, setNextGantry(3)) // SET NEXT GANTRY ACCORDING TO MATRIX
                         .waitSeconds(3.25)
                         .build(),
                 robot
@@ -331,6 +382,7 @@ public class UndefeatedAuto extends LinearOpMode {
                         .afterTime(2.25, flickArm3())
                         .afterTime(2.5, runIndexer(-1.0))
                         .afterTime(3.5, flickArm3())
+                        .afterTime(0, setNextGantry(2))
                         .waitSeconds(4)
                         .build(),
                 robot
@@ -359,6 +411,15 @@ public class UndefeatedAuto extends LinearOpMode {
             else if (detectedTag == 23) Actions.runBlocking(shoot_133);
             else Actions.runBlocking(shoot_333);
 
+            Actions.runBlocking(blue_moveOffLine);
+
+       //     Actions.runBlocking(blue_thirdStackIntake);
+
+       //     if (detectedTag == 21) Actions.runBlocking(shoot_133);
+        //    else if (detectedTag == 22) Actions.runBlocking(shoot_223);
+       //     else if (detectedTag == 23) Actions.runBlocking(shoot_333);
+       //     else Actions.runBlocking(shoot_333);
+
         } else if (RobotConfig.alliance == RobotConfig.Alliance.RED) {
             // insert red alliance code here lmao
         }
@@ -371,6 +432,5 @@ public class UndefeatedAuto extends LinearOpMode {
         robot.diffy.update();
         tagProcessor.close();
 
-        Pose2d finalRestingPlace = drive.localizer.getPose();
     }
 }

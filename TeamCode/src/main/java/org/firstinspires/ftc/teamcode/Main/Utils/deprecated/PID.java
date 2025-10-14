@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Main.Utils;
+package org.firstinspires.ftc.teamcode.Main.Utils.deprecated;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 

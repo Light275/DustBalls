@@ -20,15 +20,15 @@ public class Diffy {
     public static double targetL = 0;
     public static double targetR = 0;
 
-    public static double kP_L = 0.0002;
-    public static double kP_R = 0.0002;
+    public static double kP_L = 0.00028;
+    public static double kP_R = 0.00028;
 
     public static double minPower = 0;
     public static double maxPower = 1.0;
     public static double toleranceTicks = 175;
 
-    public static double slot1Pos = -5200;
-    public static double slot2Pos = -2800;
+    public static double slot1Pos = -5300;
+    public static double slot2Pos = -2300;
     public static double slot3Pos = 0;
 
     public static double angleOffset = 0;

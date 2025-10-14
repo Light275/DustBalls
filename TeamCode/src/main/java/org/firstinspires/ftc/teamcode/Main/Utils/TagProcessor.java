@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.Main.Utils;
 import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -16,13 +16,13 @@ import java.util.List;
 /**
  * Simplified AprilTag processor for FTC — detects tag IDs 21, 22, and 23.
  * Includes alliance selection during init (D-pad left = BLUE, D-pad right = RED).
+ * Remembers the last detected tag ID during init.
  */
-
 public class TagProcessor {
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;
 
-    private int detectedTagId = -1;
+    private int lastDetectedTagId = -1; // stores last valid detection
     private Alliance currentAlliance = Alliance.BLUE;
 
     public enum Alliance {
@@ -47,8 +47,6 @@ public class TagProcessor {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG);
 
         visionPortal = builder.build();
-
-        // Start streaming to dashboard
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
     }
 
@@ -56,33 +54,29 @@ public class TagProcessor {
     public void handleInitLoop(LinearOpMode opMode) {
         update();
 
-        if (opMode.gamepad1.dpad_left) {
-            currentAlliance = Alliance.BLUE;
-        } else if (opMode.gamepad1.dpad_right) {
-            currentAlliance = Alliance.RED;
-        }
+        if (opMode.gamepad1.dpad_left) currentAlliance = Alliance.BLUE;
+        else if (opMode.gamepad1.dpad_right) currentAlliance = Alliance.RED;
 
         opMode.telemetry.addLine("=== APRILTAG / ALLIANCE SELECT ===");
         opMode.telemetry.addData("Alliance", currentAlliance);
-        opMode.telemetry.addData("Detected Tag", (detectedTagId == -1) ? "None" : detectedTagId);
+        opMode.telemetry.addData("Detected Tag", (lastDetectedTagId == -1) ? "None" : lastDetectedTagId);
         opMode.telemetry.addLine("Use D-Pad: ← = Blue | Red = →");
         opMode.telemetry.update();
     }
 
-    /** Updates detections */
+    /** Updates detections; keeps last valid tag if nothing new detected */
     public void update() {
         List<AprilTagDetection> detections = aprilTag.getDetections();
-        detectedTagId = -1;
         for (AprilTagDetection detection : detections) {
             if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
-                detectedTagId = detection.id;
+                lastDetectedTagId = detection.id; // update only on valid detection
                 break;
             }
         }
     }
 
     public int getDetectedTagId() {
-        return detectedTagId;
+        return lastDetectedTagId; // always returns last valid detection
     }
 
     public Alliance getAlliance() {
@@ -90,8 +84,6 @@ public class TagProcessor {
     }
 
     public void close() {
-        if (visionPortal != null) {
-            visionPortal.close();
-        }
+        if (visionPortal != null) visionPortal.close();
     }
 }

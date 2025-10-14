@@ -11,7 +11,7 @@ public class Arms {
     private Servo arm1, arm2, arm3;
 
     // Positions
-    public static double ARM_1_UP = 0.525;
+    public static double ARM_1_UP = 0.55;
     public static double ARM_1_DOWN = 0.195;
     public static double ARM_2_UP = 0.67;
     public static double ARM_2_DOWN = 0.34;
