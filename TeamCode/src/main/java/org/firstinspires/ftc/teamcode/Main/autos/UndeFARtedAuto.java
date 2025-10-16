@@ -311,8 +311,12 @@ public class UndeFARtedAuto extends LinearOpMode {
                         .afterTime(0.0, gantrySlot(3))
                         .afterTime(0, turretAngle(90))
                         .strafeToLinearHeading(new Vector2d(-30, 0), Math.toRadians(0),
-                                new TranslationalVelConstraint(80),
-                                new ProfileAccelConstraint(-80, 80))
+                                new TranslationalVelConstraint(10),
+                                new ProfileAccelConstraint(-10, 10))
+                        .strafeToLinearHeading(new Vector2d(-30, 0), Math.toRadians(0),
+                                new TranslationalVelConstraint(10),
+                                new ProfileAccelConstraint(-10, 10))
+                        .waitSeconds(10)
 
                         .build(),
                 robot

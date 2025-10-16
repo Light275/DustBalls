@@ -19,7 +19,8 @@ public class Robot {
     public Diffy diffy;
     public Spatula spatula;
 
-    public Pose2d robotPose = PoseStorage.storedPose;
+    //public Pose2d robotPose = PoseStorage.storedPose;
+    public Pose2d robotPose = new Pose2d(16.7, -62.5, Math.toRadians(90));
     public double xPOS, yPOS, headingRad;
 
     public Robot(HardwareMap hardwareMap) {

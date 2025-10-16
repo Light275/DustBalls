@@ -10,6 +10,6 @@ public class RobotConfig {
     }
 
     /** Public static so it can be accessed anywhere */
-    public static Alliance alliance = Alliance.UNKNOWN;
+    public static Alliance alliance = Alliance.BLUE;
 
 }

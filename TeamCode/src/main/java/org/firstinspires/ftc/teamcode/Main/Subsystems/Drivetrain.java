@@ -58,7 +58,7 @@ public class Drivetrain {
         rb /= max;
 
         leftFront.setPower(lf * speedMultiplier);
-        leftBack.setPower(lb * -speedMultiplier);
+        leftBack.setPower(lb * speedMultiplier);
         rightFront.setPower(rf * speedMultiplier);
         rightBack.setPower(rb * speedMultiplier);
     }
