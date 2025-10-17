@@ -62,8 +62,10 @@ public class TELEOP extends com.qualcomm.robotcore.eventloop.opmode.OpMode {
         }
 
 
-        if (gamepad1.dpad_up) {
+        if (gamepad1.dpad_right) {
             fixedTurretTrigger = true;
+        } if (gamepad1.dpad_left) {
+            fixedTurretTrigger = false;
         }
 
         // --- DISTANCE & TURRET CONTROL ---
