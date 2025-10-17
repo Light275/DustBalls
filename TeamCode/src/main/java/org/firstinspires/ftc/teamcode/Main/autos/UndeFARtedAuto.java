@@ -590,8 +590,9 @@ public class UndeFARtedAuto extends LinearOpMode {
         }
 
         // Final updates
-        Pose2d endPose = drive.localizer.getPose();
-        PoseStorage.storedPose = endPose;
+        PoseStorage.storedPose = drive.localizer.getPose();
+
+        robot.end();
         robot.update();
         robot.flywheel.update();
         robot.diffy.update();

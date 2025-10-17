@@ -61,7 +61,6 @@ public class TELEOP extends com.qualcomm.robotcore.eventloop.opmode.OpMode {
             robot.intake.runIndexerOnly(robot.intake.getIndexerSpeed());
         }
 
-
         if (gamepad1.dpad_right) {
             fixedTurretTrigger = true;
         } if (gamepad1.dpad_left) {

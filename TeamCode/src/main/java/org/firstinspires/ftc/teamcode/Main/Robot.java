@@ -20,7 +20,7 @@ public class Robot {
     public Spatula spatula;
 
     //public Pose2d robotPose = PoseStorage.storedPose;
-    public Pose2d robotPose = PoseStorage.storedPose;
+    public Pose2d robotPose = null;
     public double xPOS, yPOS, headingRad;
 
     public Robot(HardwareMap hardwareMap) {
@@ -41,6 +41,7 @@ public class Robot {
     }
 
     public void update() {
+
         drive.updatePoseEstimate();
         Pose2d odoPose = drive.localizer.getPose();
 
@@ -48,5 +49,9 @@ public class Robot {
         yPOS = odoPose.position.y;
         headingRad = odoPose.heading.toDouble();
         arms.update();
+    }
+
+    public void end() {
+        robotPose = PoseStorage.storedPose; // set pose to stored pose
     }
 }
