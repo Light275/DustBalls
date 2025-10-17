@@ -167,7 +167,7 @@ public class UndeFARtedAuto extends LinearOpMode {
                         .afterTime(0.0, spatulaOff())
                         .afterTime(0.0, gantrySlot(2))
                         .afterTime(0.0, spinFlywheel(420))
-                        .afterTime(0.0, turretAngle(73.5))
+                        .afterTime(0.0, turretAngle(72.5))
                         .afterTime(0.0, runIndexer(-0.7))
                         .afterTime(0.8, flickArm2())
                         .afterTime(1.25, gantrySlot(3))
@@ -180,6 +180,27 @@ public class UndeFARtedAuto extends LinearOpMode {
                         .build(),
                 robot
         );
+
+        Action red_PGP_preloads = new UpdatingAction(
+                drive.actionBuilder(startPose)
+                        .afterTime(0.0, spatulaOff())
+                        .afterTime(0.0, gantrySlot(2))
+                        .afterTime(0.0, spinFlywheel(420))
+                        .afterTime(0.0, turretAngle(107.5))
+                        .afterTime(0.0, runIndexer(-0.7))
+                        .afterTime(0.8, flickArm2())
+                        .afterTime(1.25, gantrySlot(3))
+                        .afterTime(1.25, spatulaOn())
+                        .afterTime(1.25, runIndexer(-1.0))
+                        .afterTime(1.75, flickArm3())
+                        .afterTime(2.75, flickArm3())
+                        .afterTime(0, setNextGantry(2))
+                        .waitSeconds(3.25)
+                        .build(),
+                robot
+        );
+
+        // =========================== PURPLE PURPLE GREEN ============================ [PPG]
 
         Action blue_PPG_preloads = new UpdatingAction(
                 drive.actionBuilder(startPose)
@@ -201,12 +222,33 @@ public class UndeFARtedAuto extends LinearOpMode {
                 robot
         );
 
+        Action red_PPG_preloads = new UpdatingAction(
+                drive.actionBuilder(startPose)
+                        .afterTime(0.0, spatulaOff())
+                        .afterTime(0.0, gantrySlot(2))
+                        .afterTime(0.0, spinFlywheel(430))
+                        .afterTime(0.0, turretAngle(107.5))
+
+                        .afterTime(0.0, runIndexer(-0.5))
+                        .afterTime(1.25, flickArm2())
+                        .afterTime(1.5, runIndexer(-1.0))
+                        .afterTime(2.5, flickArm2())
+                        .afterTime(3, gantrySlot(3))
+                        .afterTime(3, spatulaOn())
+                        .afterTime(3.75, flickArm3())
+                        .afterTime(0, setNextGantry(2))
+                        .waitSeconds(4.25)
+                        .build(),
+                robot
+        );
+
+        // ============== GREEN PURPLE PURPLE ======================== [GPP]
         Action blue_GPP_preloads = new UpdatingAction(
                 drive.actionBuilder(startPose)
                         .afterTime(0.0, spatulaOn())
                         .afterTime(0.0, gantrySlot(3))
                         .afterTime(0.0, spinFlywheel(420))
-                        .afterTime(0.0, turretAngle(73.5))
+                        .afterTime(0.0, turretAngle(72.5))
                         .afterTime(0.0, runIndexer(-0.7))
                         .afterTime(1, flickArm3())
                         .afterTime(2.25, flickArm3())
@@ -218,6 +260,24 @@ public class UndeFARtedAuto extends LinearOpMode {
                 robot
         );
 
+        Action red_GPP_preloads = new UpdatingAction(
+                drive.actionBuilder(startPose)
+                        .afterTime(0.0, spatulaOn())
+                        .afterTime(0.0, gantrySlot(3))
+                        .afterTime(0.0, spinFlywheel(420))
+                        .afterTime(0.0, turretAngle(107.5))
+                        .afterTime(0.0, runIndexer(-0.7))
+                        .afterTime(1, flickArm3())
+                        .afterTime(2.25, flickArm3())
+                        .afterTime(2.5, runIndexer(-1.0))
+                        .afterTime(3.5, flickArm3())
+                        .afterTime(0, setNextGantry(3))
+                        .waitSeconds(4)
+                        .build(),
+                robot
+        );
+
+        // TODO: ============= FIRST STACK INTAKE =======================
         Action blue_firstStackIntake = new UpdatingAction(
                 drive.actionBuilder(startPose)
                         .afterTime(0.0, spatulaOff())
@@ -246,6 +306,37 @@ public class UndeFARtedAuto extends LinearOpMode {
                         .build(),
                 robot
         );
+
+        Action red_firstStackIntake = new UpdatingAction(
+                drive.actionBuilder(startPose)
+                        .afterTime(0.0, spatulaOff())
+                        .afterTime(0.0, goToNextGantrySlot())
+                        .afterTime(0.0, spinFlywheel(120))
+                        .afterTime(0, turretAngle(20))
+                        .afterTime(2, turretAngle(90))
+                        .afterTime(0.0, runIndexer(1.0))
+                        .afterTime(0.0, runIntake(-1.0))
+                        .afterTime(1, runIntake(1.0))
+                        .afterTime(1, runIndexer(-1.0))
+                        .afterTime(5, runIntake(0))
+                        .afterTime(3, spinFlywheel(340))
+                        .strafeToLinearHeading(new Vector2d(30, -36), Math.toRadians(0),
+                                new TranslationalVelConstraint(60),
+                                new ProfileAccelConstraint(-60, 60))
+                        .strafeToLinearHeading(new Vector2d(59, -36), Math.toRadians(0), // WALL [INTAKED]
+                                new TranslationalVelConstraint(30),
+                                new ProfileAccelConstraint(-30, 30))
+                        .strafeToLinearHeading(new Vector2d(16.7, -15), Math.toRadians(0),
+                                new TranslationalVelConstraint(80),
+                                new ProfileAccelConstraint(-80, 80))
+                        .strafeToLinearHeading(new Vector2d(16.7, 15), Math.toRadians(50),
+                                new TranslationalVelConstraint(30),
+                                new ProfileAccelConstraint(-30, 30))
+                        .build(),
+                robot
+        );
+
+        // TODO: ========================= SECOND STACK INTAKE ===============================
 
         Action blue_secondStackIntake = new UpdatingAction(
                 drive.actionBuilder(new Pose2d(-16.7, 15, Math.toRadians(130)))
@@ -276,6 +367,37 @@ public class UndeFARtedAuto extends LinearOpMode {
                 robot
         );
 
+        Action red_secondStackIntake = new UpdatingAction(
+                drive.actionBuilder(new Pose2d(16.7, 15, Math.toRadians(50)))
+                        .afterTime(0.0, spatulaOff())
+                        .afterTime(0.0, goToNextGantrySlot())
+                        .afterTime(0.0, spinFlywheel(120))
+                        .afterTime(0, turretAngle(20))
+                        .afterTime(2, turretAngle(90))
+                        .afterTime(0.0, runIndexer(1.0))
+                        .afterTime(0.0, runIntake(-1.0))
+                        .afterTime(1, runIntake(1.0))
+                        .afterTime(1, runIndexer(-1.0))
+                        .afterTime(5, runIntake(0))
+                        .afterTime(3, spinFlywheel(340))
+                        .strafeToLinearHeading(new Vector2d(16, -12), Math.toRadians(0),
+                                new TranslationalVelConstraint(60),
+                                new ProfileAccelConstraint(-60, 60))
+                        .strafeToLinearHeading(new Vector2d(59, -12), Math.toRadians(0), // WALL [INTAKED]
+                                new TranslationalVelConstraint(50),
+                                new ProfileAccelConstraint(-50, 50))
+                        .strafeToLinearHeading(new Vector2d(20, -12), Math.toRadians(50),
+                                new TranslationalVelConstraint(50),
+                                new ProfileAccelConstraint(-50, 50))
+                        .strafeToLinearHeading(new Vector2d(16.7, 15), Math.toRadians(50),
+                                new TranslationalVelConstraint(50),
+                                new ProfileAccelConstraint(-50, 50))
+                        .build(),
+                robot
+        );
+
+        // TODO: ========================= THIRD STACK INTAKE ===============================
+
         Action blue_thirdStackIntake = new UpdatingAction(
                 drive.actionBuilder(new Pose2d(-16.7, 15, Math.toRadians(130)))
                         .afterTime(0.0, spatulaOff())
@@ -305,6 +427,8 @@ public class UndeFARtedAuto extends LinearOpMode {
                 robot
         );
 
+        // TODO: =================================== MOVE OFF LINE =============================
+
         Action blue_moveOffLine = new UpdatingAction(
                 drive.actionBuilder(new Pose2d(-16.7, 15, Math.toRadians(130)))
                         .afterTime(0.0, spatulaOn())
@@ -322,6 +446,22 @@ public class UndeFARtedAuto extends LinearOpMode {
                 robot
         );
 
+        Action red_moveOffLine = new UpdatingAction(
+                drive.actionBuilder(new Pose2d(16.7, 15, Math.toRadians(50)))
+                        .afterTime(0.0, spatulaOn())
+                        .afterTime(0.0, gantrySlot(3))
+                        .afterTime(0, turretAngle(90))
+                        .strafeToLinearHeading(new Vector2d(30, 0), Math.toRadians(0),
+                                new TranslationalVelConstraint(10),
+                                new ProfileAccelConstraint(-10, 10))
+                        .strafeToLinearHeading(new Vector2d(30, 0), Math.toRadians(0),
+                                new TranslationalVelConstraint(10),
+                                new ProfileAccelConstraint(-10, 10))
+                        .waitSeconds(10)
+
+                        .build(),
+                robot
+        );
 
         // ===============================
         // SHOOTING SEQUENCES
@@ -426,6 +566,27 @@ public class UndeFARtedAuto extends LinearOpMode {
 
         } else if (RobotConfig.alliance == RobotConfig.Alliance.RED) {
             // insert red alliance code here lmao
+            if (detectedTag == 21) Actions.runBlocking(red_GPP_preloads);
+            else if (detectedTag == 22) Actions.runBlocking(red_PGP_preloads);
+            else if (detectedTag == 23) Actions.runBlocking(red_PPG_preloads);
+            else Actions.runBlocking(red_GPP_preloads);
+
+            Actions.runBlocking(red_firstStackIntake);
+
+            if (detectedTag == 21) Actions.runBlocking(shoot_333);
+            else if (detectedTag == 22) Actions.runBlocking(shoot_233);
+            else if (detectedTag == 23) Actions.runBlocking(shoot_223);
+            else Actions.runBlocking(shoot_333);
+
+            Actions.runBlocking(red_secondStackIntake);
+
+            if (detectedTag == 21) Actions.runBlocking(shoot_233);
+            else if (detectedTag == 22) Actions.runBlocking(shoot_333);
+            else if (detectedTag == 23) Actions.runBlocking(shoot_133);
+            else Actions.runBlocking(shoot_333);
+
+            Actions.runBlocking(red_moveOffLine);
+
         }
 
         // Final updates
