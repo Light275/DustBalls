@@ -126,7 +126,7 @@ public class UndefeatedAuto extends LinearOpMode {
         robot = new Robot(hardwareMap);
         tagProcessor = new TagProcessor(hardwareMap);
         robot.arms.reset();
-        robot.diffy.reset();
+        robot.diffy.reset(0);
         robot.spatula.spatulaOFF();
 
         // --- INIT LOOP ---

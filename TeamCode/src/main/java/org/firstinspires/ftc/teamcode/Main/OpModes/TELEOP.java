@@ -35,7 +35,7 @@ public class TELEOP extends com.qualcomm.robotcore.eventloop.opmode.OpMode {
     public void init() {
         robot = new Robot(hardwareMap);
         robot.arms.reset();
-        robot.diffy.reset();
+        robot.diffy.reset(0);
 
         telemetry.addLine("TELEOP Initialized - Base & Coefficient Adjustable via Gamepad2");
         telemetry.update();
@@ -138,7 +138,7 @@ public class TELEOP extends com.qualcomm.robotcore.eventloop.opmode.OpMode {
         telemetry.addData("Flywheel Actual", "%.2f rad/s", robot.flywheel.getVelocityRadPerSec());
         telemetry.addLine();
         telemetry.addLine("======== IMPORTANT INFORMATION ========");
-        telemetry.addData("Fixed Turret:", fixedTurretTrigger);
+        telemetry.addData("Fixed Turret T/F:", fixedTurretTrigger);
         telemetry.addData("ROBOT X:", robot.xPOS);
         telemetry.addData("ROBOT Y:", robot.yPOS);
         telemetry.addData("ROBOT HEADING:", Math.toDegrees(robot.headingRad));

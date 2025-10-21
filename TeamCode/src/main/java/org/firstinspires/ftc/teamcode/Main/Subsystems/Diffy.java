@@ -118,9 +118,9 @@ public class Diffy {
         targetR = currentSlotBase + angleOffset * angleScale;
     }
 
-    public void reset() {
+    public void reset(double angleOffset) {
         currentSlotBase = 0;
-        angleOffset = 0;
+        this.angleOffset = angleOffset;
         targetL = 0;
         targetR = 0;
         resetEncoders();

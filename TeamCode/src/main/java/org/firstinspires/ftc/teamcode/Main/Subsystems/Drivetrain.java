@@ -41,10 +41,10 @@ public class Drivetrain {
     public void move(double drive, double strafe, double rotate, boolean slowMode) {
         double speedMultiplier = slowMode ? 0.3 : 1.0;
 
-        double lf = drive + strafe + rotate;
-        double lb = drive - strafe + rotate;
-        double rf = drive - strafe - rotate;
-        double rb = drive + strafe - rotate;
+        double lf = drive + strafe + rotate * 1.3;
+        double lb = drive - strafe + rotate * 1.3;
+        double rf = drive - strafe - rotate * 1.3;
+        double rb = drive + strafe - rotate * 1.3;
 
         // Normalize to prevent ratio distortion
         double max = Math.max(1.0, Math.abs(lf));

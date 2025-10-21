@@ -21,7 +21,7 @@ public class DiffyTestTeleOp extends OpMode {
         diffy = new Diffy(hardwareMap);
         dashboard = FtcDashboard.getInstance();
 
-        diffy.reset();
+        diffy.reset(90);
         telemetry.addLine("Diffy Slot + Angle Test Ready");
         telemetry.addLine("A/B/X = Slot 1/2/3");
         telemetry.addLine("Left Stick X = Rotate turret");
