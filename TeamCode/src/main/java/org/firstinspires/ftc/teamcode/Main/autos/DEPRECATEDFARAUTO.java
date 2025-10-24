@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import java.lang.Math;
 
 @Autonomous(name = "9 Ball Auto Far", group = "Autonomous")
-public class UndefeatedAuto extends LinearOpMode {
+public class DEPRECATEDFARAUTO extends LinearOpMode {
 
     private Robot robot;
     private MecanumDrive drive;

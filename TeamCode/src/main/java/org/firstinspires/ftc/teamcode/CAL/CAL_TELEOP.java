@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.CAL;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -10,15 +9,15 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.CAL.Flywheel.CALFlywheelClass;
 
 @TeleOp(name = "Nolan is amazing", group = "Testing")
-public class Nolanpooki extends OpMode {
+public class CAL_TELEOP extends OpMode {
     private DcMotorEx flywheelMotor, intake, leftFront, leftBack, rightFront, rightBack;
     private CRServo spinner;
-  //  private ElapsedTime rpmTimer;
 
     private double prevTicks;
 
@@ -27,12 +26,15 @@ public class Nolanpooki extends OpMode {
     private double peakAmps;
     private double loopCounter = 0;
 
-    private double tgtPWR = 0.87;
+    private double tgtVEL = 250;
     private double loopTime;
+
+    CALFlywheelClass flywheel;
 
 
     @Override public void init() { // INIT BUTTON PRESSED
-
+        VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
+        flywheel = new CALFlywheelClass(hardwareMap, battery);
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
@@ -56,14 +58,15 @@ public class Nolanpooki extends OpMode {
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
-        flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
+     //   flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
+
         spinner = hardwareMap.get(CRServo.class, "spinner");
 
         // Set flywheel motor directions
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-        flywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        flywheelMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+      //  flywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    //    flywheelMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
     }
 
@@ -101,7 +104,7 @@ public class Nolanpooki extends OpMode {
         move(drive, strafe, rotate, slowMode);
 
         if (Math.abs(gamepad2.right_stick_y) > 0.01f) {
-            tgtPWR += gamepad2.right_stick_y * -0.0005;
+            tgtVEL += gamepad2.right_stick_y * -4;
         }
 
         if (gamepad2.left_trigger > 0.1f) {
@@ -110,6 +113,8 @@ public class Nolanpooki extends OpMode {
             intakePWR = 1;
         } else if (!gamepad2.a){
             intakePWR = 0;
+        } else {
+            intakePWR = 1; // goof
         }
 
         intake.setPower(intakePWR);
@@ -121,28 +126,23 @@ public class Nolanpooki extends OpMode {
             spinner.setPower(0);
         }
 
-        if (flywheelMotor.getCurrent(CurrentUnit.AMPS) > peakAmps) {
-            peakAmps = flywheelMotor.getCurrent(CurrentUnit.AMPS);
-        }
+        flywheel.setTargetVelocity(tgtVEL);
+        flywheel.update();
 
-        flywheelMotor.setPower(tgtPWR);
-
-        telemetry.addData("SHOOTER RPM:", tgtPWR * 5800);
-        telemetry.addData("SHOOTER POWER:", tgtPWR);
+        telemetry.addData("TARGET VELOCITY:", flywheel.getTargetVelocity());
         telemetry.addLine();
-        telemetry.addLine();
-        telemetry.addData("Flywheel amps:", flywheelMotor.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("Peak Amps:", peakAmps);
+        telemetry.addData("SHOOTER VELOCITY:", flywheel.getVelocityRadPerSec());
+        telemetry.addData("SHOOTER RPM:", flywheel.getVelocityRPM());
+        telemetry.addData("SHOOTER POWER:", flywheel.getPower());
         telemetry.addLine();
         telemetry.addLine();
         telemetry.addData("INTAKE PWR:", intakePWR);
         telemetry.update();
 
         TelemetryPacket packet = new TelemetryPacket();
-        packet.put("tgtPWR:", tgtPWR);
-        packet.put("ESTIMATED RPM:", tgtPWR * 5800);
-        packet.put("Flywheel amps:", flywheelMotor.getCurrent(CurrentUnit.AMPS));
-        packet.put("Peak amps:", peakAmps);
+        packet.put("tgtVEL:", tgtVEL);
+        packet.put("Current Vel:", flywheel.getVelocityRadPerSec());
+        packet.put("ESTIMATED RPM:", tgtVEL * 9.549297);
 
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
 

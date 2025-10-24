@@ -12,14 +12,14 @@ public class Arms {
 
     // Positions
     public static double ARM_1_UP = 0.55;
-    public static double ARM_1_DOWN = 0.195;
+    public static double ARM_1_DOWN = 0.2;
     public static double ARM_2_UP = 0.67;
     public static double ARM_2_DOWN = 0.34;
     public static double ARM_3_UP = 0.67;
     public static double ARM_3_DOWN = 0.34;
 
     // Flick duration (seconds)
-    public static double FLICK_HOLD_TIME = 0.35;
+    public static double FLICK_HOLD_TIME = 0.25;
 
     // Flick state & timers
     private boolean flickArm1 = false;

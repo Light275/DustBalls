@@ -10,7 +10,7 @@ public class Intake {
 
     private double intakeSpeed = 1.0;
     private double indexerSpeed = -1.0;
-    private double indexerIdle = -1.0;
+    private double indexerIdle = -0.4;
     private ColorSensors colorSensors;
 
     public Intake(HardwareMap hardwareMap, ColorSensors colorSensors) {
