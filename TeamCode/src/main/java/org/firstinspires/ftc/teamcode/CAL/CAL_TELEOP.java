@@ -28,6 +28,8 @@ public class CAL_TELEOP extends OpMode {
 
     private double tgtVEL = 250;
     private double loopTime;
+    private double flyspeed = 1;
+
 
     CALFlywheelClass flywheel;
 
@@ -104,15 +106,26 @@ public class CAL_TELEOP extends OpMode {
         move(drive, strafe, rotate, slowMode);
 
         if (Math.abs(gamepad2.right_stick_y) > 0.01f) {
-            tgtVEL += gamepad2.right_stick_y * -4;
+            tgtVEL += gamepad2.right_stick_y * -flyspeed;
         }
 
-        if (gamepad2.left_trigger > 0.1f) {
-            intakePWR = -1;
-        } else if (gamepad2.left_bumper){
-            intakePWR = 1;
-        } else if (!gamepad2.a){
+        else if (!gamepad2.a){
             intakePWR = 0;
+        } else {
+            intakePWR = 1; // goof
+        }
+        if (gamepad2.left_trigger > 0.1f && flywheel.getTargetVelocity() < 6000) {
+            flywheel.setTargetVelocity(flywheel.getTargetVelocity()+1000);
+        }if (gamepad2.dpad_down  && flywheel.getTargetVelocity() < 6000) {
+            flywheel.setTargetVelocity(flywheel.getTargetVelocity()+1000);
+        } else if (gamepad2.right_trigger > 0.1f && flywheel.getVelocityRPM() >= 1000){
+            flywheel.setTargetVelocity(flywheel.getTargetVelocity()-1000);
+        }  else if (!gamepad2.a){
+            intakePWR = 0;
+        }if (gamepad2.left_bumper && flywheel.getTargetVelocity() < 6000) {
+            flywheel.setTargetVelocity(flywheel.getTargetVelocity()+100);
+        } else if (gamepad2.right_bumper && flywheel.getVelocityRPM() >= 100){
+            flywheel.setTargetVelocity(flywheel.getTargetVelocity()-100);
         } else {
             intakePWR = 1; // goof
         }
