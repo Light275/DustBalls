@@ -11,7 +11,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.CAL.Flywheel.CALFlywheelClass;
 
 @TeleOp(name = "Nolan is amazing", group = "Testing")
@@ -96,13 +95,13 @@ public class CAL_TELEOP extends OpMode {
         rightFront.setPower(rf * speedMultiplier);
         rightBack.setPower(rb * speedMultiplier);
     }
-
     @Override
     public void loop() { // PLAY BUTTON PRESSED, CODE RUNNING
         double drive = -gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
         double rotate = gamepad1.right_stick_x;
         boolean slowMode = gamepad1.right_trigger > 0.1;
+        boolean isdown = false;
         move(drive, strafe, rotate, slowMode);
 
         if (Math.abs(gamepad2.right_stick_y) > 0.01f) {
@@ -114,19 +113,52 @@ public class CAL_TELEOP extends OpMode {
         } else {
             intakePWR = 1; // goof
         }
-        if (gamepad2.left_trigger > 0.1f && flywheel.getTargetVelocity() < 6000) {
+        if (gamepad2.left_trigger > 0.1f && flywheel.getTargetVelocity() < 6000 && !isdown) {
             flywheel.setTargetVelocity(flywheel.getTargetVelocity()+1000);
-        }if (gamepad2.dpad_down  && flywheel.getTargetVelocity() < 6000) {
-            flywheel.setTargetVelocity(flywheel.getTargetVelocity()+1000);
-        } else if (gamepad2.right_trigger > 0.1f && flywheel.getVelocityRPM() >= 1000){
-            flywheel.setTargetVelocity(flywheel.getTargetVelocity()-1000);
-        }  else if (!gamepad2.a){
+            isdown = true;
+            while (isdown){
+                if(gamepad2.left_trigger < 0.1f)  {
+                    isdown = false;
+                    break;
+                }
+            }
+        }
+        if (gamepad2.dpad_up){
+        isdown = true;
+            if (isdown && !gamepad2.dpad_up){
+            flywheel.setTargetVelocity(2500);
+            isdown = false;
+            }
+        }
+        if (gamepad2.dpad_up){
+            isdown = true;
+            if (isdown && !gamepad2.dpad_up){
+                flywheel.setTargetVelocity(2500);
+                isdown = false;
+            }
+        }
+        if (gamepad2.right_trigger > 0.1f && flywheel.getVelocityRPM() >= 1000){
+            isdown = true;
+            if (isdown && gamepad2.right_trigger < 0.1f){
+                flywheel.setTargetVelocity(flywheel.getTargetVelocity()-1000);
+                isdown = false;
+            }
+
+        }
+        else if (!gamepad2.a){
             intakePWR = 0;
-        }if (gamepad2.left_bumper && flywheel.getTargetVelocity() < 6000) {
-            flywheel.setTargetVelocity(flywheel.getTargetVelocity()+100);
-        } else if (gamepad2.right_bumper && flywheel.getVelocityRPM() >= 100){
+        }
+        if (gamepad2.left_bumper && flywheel.getTargetVelocity() < 6000) {
+            isdown = true;
+            if (isdown && !gamepad2.left_bumper){
+                flywheel.setTargetVelocity(flywheel.getTargetVelocity()+100);
+                isdown = false;
+            }
+        }
+        else if (gamepad2.right_bumper && flywheel.getVelocityRPM() >= 100){
             flywheel.setTargetVelocity(flywheel.getTargetVelocity()-100);
-        } else {
+        }
+        else {
             intakePWR = 1; // goof
         }
 
@@ -135,7 +167,8 @@ public class CAL_TELEOP extends OpMode {
         if (gamepad2.a) {
             spinner.setPower(-1);
             intake.setPower(intakePWR);
-        } else {
+        }
+        else {
             spinner.setPower(0);
         }
 
