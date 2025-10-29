@@ -156,7 +156,11 @@ public class CAL_TELEOP extends OpMode {
             }
         }
         else if (gamepad2.right_bumper && flywheel.getVelocityRPM() >= 100){
-            flywheel.setTargetVelocity(flywheel.getTargetVelocity()-100);
+            isdown = true;
+            if (isdown && !gamepad2.right_bumper){
+                flywheel.setTargetVelocity(flywheel.getTargetVelocity()-100);
+                isdown = false;
+            }
         }
         else {
             intakePWR = 1; // goof
