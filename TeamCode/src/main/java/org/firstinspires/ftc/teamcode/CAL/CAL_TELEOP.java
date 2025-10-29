@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.CAL.Flywheel.CALFlywheelClass;
 
-@TeleOp(name = "Nolan is amazing", group = "Testing")
+@TeleOp(name = "CalTeleopV1", group = "Testing")
 public class CAL_TELEOP extends OpMode {
     private DcMotorEx flywheelMotor, intake, leftFront, leftBack, rightFront, rightBack;
     private CRServo spinner;
@@ -59,15 +59,15 @@ public class CAL_TELEOP extends OpMode {
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
-     //   flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
+        //   flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
 
         spinner = hardwareMap.get(CRServo.class, "spinner");
 
         // Set flywheel motor directions
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-      //  flywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-    //    flywheelMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        //  flywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //    flywheelMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
     }
 
@@ -108,67 +108,21 @@ public class CAL_TELEOP extends OpMode {
             tgtVEL += gamepad2.right_stick_y * -flyspeed;
         }
 
-        else if (!gamepad2.a){
+        else if (!gamepad2.a && !gamepad2.b && !gamepad1.a && !gamepad1.b && !gamepad1.left_bumper && !gamepad2.left_bumper){
             intakePWR = 0;
         } else {
             intakePWR = 1; // goof
         }
-        if (gamepad2.left_trigger > 0.1f && flywheel.getTargetVelocity() < 6000 && !isdown) {
-            flywheel.setTargetVelocity(flywheel.getTargetVelocity()+1000);
-            isdown = true;
-            while (isdown){
-                if(gamepad2.left_trigger < 0.1f)  {
-                    isdown = false;
-                    break;
-                }
-            }
+        if (gamepad2.dpad_up || gamepad1.dpad_up){
+            tgtVEL = 400;
         }
-        if (gamepad2.dpad_up){
-        isdown = true;
-            if (isdown && !gamepad2.dpad_up){
-            flywheel.setTargetVelocity(2500);
-            isdown = false;
-            }
-        }
-        if (gamepad2.dpad_up){
-            isdown = true;
-            if (isdown && !gamepad2.dpad_up){
-                flywheel.setTargetVelocity(2500);
-                isdown = false;
-            }
-        }
-        if (gamepad2.right_trigger > 0.1f && flywheel.getVelocityRPM() >= 1000){
-            isdown = true;
-            if (isdown && gamepad2.right_trigger < 0.1f){
-                flywheel.setTargetVelocity(flywheel.getTargetVelocity()-1000);
-                isdown = false;
-            }
-
-        }
-        else if (!gamepad2.a){
-            intakePWR = 0;
-        }
-        if (gamepad2.left_bumper && flywheel.getTargetVelocity() < 6000) {
-            isdown = true;
-            if (isdown && !gamepad2.left_bumper){
-                flywheel.setTargetVelocity(flywheel.getTargetVelocity()+100);
-                isdown = false;
-            }
-        }
-        else if (gamepad2.right_bumper && flywheel.getVelocityRPM() >= 100){
-            isdown = true;
-            if (isdown && !gamepad2.right_bumper){
-                flywheel.setTargetVelocity(flywheel.getTargetVelocity()-100);
-                isdown = false;
-            }
-        }
-        else {
-            intakePWR = 1; // goof
+        if (gamepad2.dpad_down || gamepad1.dpad_down){
+            tgtVEL = 320;
         }
 
         intake.setPower(intakePWR);
 
-        if (gamepad2.a) {
+        if (gamepad2.a || gamepad1.a) {
             spinner.setPower(-1);
             intake.setPower(intakePWR);
         }
