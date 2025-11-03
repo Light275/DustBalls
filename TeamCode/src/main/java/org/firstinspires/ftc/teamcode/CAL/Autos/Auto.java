@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.CAL.Autos;
-
+package org.firstinspires.ftc.teamcode.CAL.Flywheel;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.*;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.CAL.Flywheel.CALFlywheelClass;
 import org.firstinspires.ftc.teamcode.CONFIG.RobotConfig;
 import org.firstinspires.ftc.teamcode.Main.Robot;
+import org.firstinspires.ftc.teamcode.Main.Subsystems.Flywheel;
 import org.firstinspires.ftc.teamcode.Main.Utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.Main.Utils.TagProcessor;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -22,6 +23,7 @@ public class Auto extends LinearOpMode {
     private DcMotorEx flywheelMotor, intake, Frontleft, Backleft, Frontright, Backright;
     ElapsedTime timer  = new ElapsedTime();
     private double tpi = .2;
+    private double tgtVEL;
 
     private void brake(){
         Frontleft.setPower(0);
@@ -85,11 +87,10 @@ public class Auto extends LinearOpMode {
         if (isStopRequested()) return;
 
         backward(54 * tpi, 1);
-
-
-
-
-
+        tgtVEL = 320;
+        Flywheel.setTargetVelocity(tgtVEL);
+        Flywheel.update();
 
     }
+
 }
