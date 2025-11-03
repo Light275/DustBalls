@@ -51,6 +51,7 @@ public class Auto extends LinearOpMode {
         }
         brake();
     }
+
     private void right(double t, double p){
         timer.reset();
         while (timer.time() <= t) {
@@ -82,17 +83,8 @@ public class Auto extends LinearOpMode {
         Backleft.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
         if (isStopRequested()) return;
-        // forward two seconds
-        timer.reset();
-        while (timer.time() <= 2){
-            Frontleft.setPower(1);
-            Frontright.setPower(1);
-            Backright.setPower(1);
-            Backleft.setPower(1);
-        }
 
         backward(54 * tpi, 1);
-        //e
 
 
 
