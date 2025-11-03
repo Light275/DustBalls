@@ -21,43 +21,55 @@ import java.lang.Math;
 public class Auto extends LinearOpMode {
     private DcMotorEx flywheelMotor, intake, Frontleft, Backleft, Frontright, Backright;
     ElapsedTime timer  = new ElapsedTime();
+    private double tpi = .2;
 
+    private void brake(){
+        Frontleft.setPower(0);
+        Backleft.setPower(0);
+        Backright.setPower(0);
+        Frontright.setPower(0);
 
-    private void forward(int t){
+    }
+    private void forward(double t,double p){
+        timer.reset();
+        while (timer.time() <= t) {
+            Frontleft.setPower(p);
+            Frontright.setPower(p);
+            Backleft.setPower(p);
+            Backright.setPower(p);
+        }
+        brake();
+
+    }
+    private void backward(double t, double p){
+        timer.reset();
+        while (timer.time() <= t) {
+            Frontleft.setPower(-p);
+            Frontright.setPower(-p);
+            Backleft.setPower(-p);
+            Backright.setPower(-p);
+        }
+        brake();
+    }
+    private void right(double t, double p){
+        timer.reset();
+        while (timer.time() <= t) {
+            Frontleft.setPower(-p);
+            Frontright.setPower(p);
+            Backleft.setPower(-p);
+            Backright.setPower(p);
+        }
+        brake();
+    }
+    private void left(double t){
         timer.reset();
         while (timer.time() <= t) {
             Frontleft.setPower(t);
-            Frontright.setPower(t);
-            Backleft.setPower(t);
-            Backright.setPower(t);
-        }
-    }
-    private void backward(int t){
-        timer.reset();
-        while (timer.time() <= t) {
-            Frontleft.setPower(-t);
-            Frontright.setPower(-t);
-            Backleft.setPower(-t);
-            Backright.setPower(-t);
-        }
-    }
-    private void right(int t){
-        timer.reset();
-        while (timer.time() <= t) {
-            Frontleft.setPower(-t);
-            Frontright.setPower(t);
-            Backleft.setPower(-t);
-            Backright.setPower(t);
-        }
-    }
-    private void left(int t){
-        timer.reset();
-        while (timer.time() <= t) {
-            Frontleft.setPower(t);
             Frontright.setPower(-t);
             Backleft.setPower(t);
             Backright.setPower(-t);
         }
+        brake();
     }
     public void runOpMode() {
 
@@ -79,7 +91,9 @@ public class Auto extends LinearOpMode {
             Backleft.setPower(1);
         }
 
-        forward(1);
+        backward(54 * tpi, 1);
+
+
 
 
 
