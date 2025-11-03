@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.CAL.Flywheel.CALFlywheelClass;
 
 @TeleOp(name = "CalTeleopV1", group = "Testing")
 public class CAL_TELEOP extends OpMode {
-    private DcMotorEx flywheelMotor, intake, leftFront, leftBack, rightFront, rightBack;
+    public DcMotorEx flywheelMotor, intake, leftFront, leftBack, rightFront, rightBack;
     private CRServo spinner;
 
     private double prevTicks;
