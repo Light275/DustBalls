@@ -24,7 +24,7 @@ public class CALKPTuner extends LinearOpMode {
     @Override
     public void runOpMode() {
         VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
-        flywheel = new CALFlywheelClass(hardwareMap, battery);
+        flywheel = new CALFlywheelClass(hardwareMap);
 
         // Replace with feedforward values from previous tuner
         double kV = 0.0018;

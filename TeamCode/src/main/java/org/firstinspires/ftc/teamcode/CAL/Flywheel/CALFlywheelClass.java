@@ -12,7 +12,6 @@ import java.util.Deque;
 public class CALFlywheelClass {
 
     private final DcMotorEx flywheelMotor;
-    private final VoltageSensor battery;
 
     // Target velocity in rad/s
     private double targetVelocity = 0.0;
@@ -33,9 +32,13 @@ public class CALFlywheelClass {
     // Last tick/time for velocity calculation
     private double lastTicks = 0.0;
     private double lastTime = 0.0;
+    private VoltageSensor battery;
 
-    public CALFlywheelClass(HardwareMap hardwareMap, VoltageSensor battery) {
-        this.battery = battery;
+    public CALFlywheelClass(HardwareMap hardwareMap) {
+        VoltageSensor battery = hardwareMap.voltageSensor.iterator().hasNext()
+                ? hardwareMap.voltageSensor.iterator().next()
+                : null;
+
 
         flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
 
